@@ -19,11 +19,13 @@ public class Order extends BaseEntity {
     @Column(nullable = false)
     private String orderNumber;
 
-    @Column(nullable = false)
-    private Long customerId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "customer_id", nullable = false)
+    private Customer customer;
 
-    @Column(nullable = false)
-    private Long productId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "product_id", nullable = false)
+    private Product product;
 
     @Column(nullable = false)
     private Integer quantity;
@@ -35,13 +37,23 @@ public class Order extends BaseEntity {
     @Column(nullable = false)
     private OrderStatus status;
 
-    @Column
+    @Column(nullable = false)
     private Long createdByAdminId;
 
-    @Column(nullable = false)
     private String orderCancelReason;
 
-    private void update(OrderStatus status) {
+    public Order(String orderNumber, Customer customer, Product product, Integer quantity, Long createdByAdminId) {
+        this.orderNumber = orderNumber;
+        this.customer = customer;
+        this.product = product;
+        this.quantity = quantity;
+        this.totalPrice = product.getPrice() * quantity;
+        this.status = OrderStatus.PREPARING;
+        this.createdByAdminId = createdByAdminId;
+        this.orderCancelReason = null;
+    }
+
+    private void changeStatus(OrderStatus status) {
         this.status = status;
     }
 
