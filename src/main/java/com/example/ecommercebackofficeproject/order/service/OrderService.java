@@ -1,5 +1,7 @@
 package com.example.ecommercebackofficeproject.order.service;
 
+import com.example.ecommercebackofficeproject.customer.entity.Customer;
+import com.example.ecommercebackofficeproject.customer.repository.CustomerRepository;
 import com.example.ecommercebackofficeproject.order.dto.CreateOrderRequest;
 import com.example.ecommercebackofficeproject.order.dto.CreateOrderResponse;
 import com.example.ecommercebackofficeproject.order.entity.Order;
@@ -19,6 +21,7 @@ import java.time.format.DateTimeFormatter;
 public class OrderService {
     private final OrderRepository orderRepository;
     private final ProductRepository productRepository;
+    private final CustomerRepository customerRepository;
 
     @Transactional
     public CreateOrderResponse createOrder(Long adminId, CreateOrderRequest request) {
@@ -43,7 +46,7 @@ public class OrderService {
         return CreateOrderResponse.builder()
                 .id(order.getId())
                 .orderNumber(order.getOrderNumber())
-                .customerId(order.customer.getId())
+                .customerId(order.getCustomer().getId())
                 .productId(order.getProduct().getProductId())
                 .quantity(order.getQuantity())
                 .totalPrice(order.getTotalPrice())
@@ -52,7 +55,6 @@ public class OrderService {
                 .createdByAdminId(order.getCreatedByAdminId())
                 .build();
     }
-
 
 
     // 주문번호 생성 메서드 (ex. 20260424-001)

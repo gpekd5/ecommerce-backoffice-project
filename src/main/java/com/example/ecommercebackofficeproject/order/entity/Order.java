@@ -1,5 +1,6 @@
 package com.example.ecommercebackofficeproject.order.entity;
 
+import com.example.ecommercebackofficeproject.customer.entity.Customer;
 import com.example.ecommercebackofficeproject.global.common.BaseEntity;
 import com.example.ecommercebackofficeproject.order.type.OrderStatus;
 import com.example.ecommercebackofficeproject.product.entity.Product;
