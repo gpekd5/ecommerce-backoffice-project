@@ -2,8 +2,10 @@ package com.example.ecommercebackofficeproject.order.entity;
 
 import com.example.ecommercebackofficeproject.global.common.BaseEntity;
 import com.example.ecommercebackofficeproject.order.type.OrderStatus;
+import com.example.ecommercebackofficeproject.product.entity.Product;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -42,12 +44,13 @@ public class Order extends BaseEntity {
 
     private String orderCancelReason;
 
+    @Builder
     public Order(String orderNumber, Customer customer, Product product, Integer quantity, Long createdByAdminId) {
         this.orderNumber = orderNumber;
         this.customer = customer;
         this.product = product;
         this.quantity = quantity;
-        this.totalPrice = product.getPrice() * quantity;
+        this.totalPrice = product.getPrice().intValue() * quantity;
         this.status = OrderStatus.PREPARING;
         this.createdByAdminId = createdByAdminId;
         this.orderCancelReason = null;
@@ -56,5 +59,6 @@ public class Order extends BaseEntity {
     private void changeStatus(OrderStatus status) {
         this.status = status;
     }
+
 
 }
