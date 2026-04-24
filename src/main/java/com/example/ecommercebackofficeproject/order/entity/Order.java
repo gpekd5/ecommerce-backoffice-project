@@ -38,7 +38,7 @@ public class Order extends BaseEntity {
 
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private OrderStatus status;
+    private OrderStatus orderStatus;
 
     @Column(nullable = false)
     private Long createdByAdminId;
@@ -52,13 +52,13 @@ public class Order extends BaseEntity {
         this.product = product;
         this.quantity = quantity;
         this.totalPrice = product.getPrice().intValue() * quantity;
-        this.status = OrderStatus.PREPARING;
+        this.orderStatus = OrderStatus.PREPARING;
         this.createdByAdminId = createdByAdminId;
         this.orderCancelReason = null;
     }
 
-    private void changeStatus(OrderStatus status) {
-        this.status = status;
+    private void changeOrderStatus(OrderStatus orderStatus) {
+        this.orderStatus = orderStatus;
     }
 
 

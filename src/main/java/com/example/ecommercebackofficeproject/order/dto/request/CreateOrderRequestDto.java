@@ -1,11 +1,11 @@
-package com.example.ecommercebackofficeproject.order.dto;
+package com.example.ecommercebackofficeproject.order.dto.request;
 
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 
 @Getter
-public class CreateOrderRequest {
+public class CreateOrderRequestDto {
 
     @NotNull(message = "회원 정보가 누락되었습니다.")
     private Long customerId;

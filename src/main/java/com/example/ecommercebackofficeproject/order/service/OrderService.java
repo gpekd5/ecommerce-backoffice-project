@@ -1,11 +1,11 @@
 package com.example.ecommercebackofficeproject.order.service;
 
-import com.example.ecommercebackofficeproject.admin.entity.Admin;
 import com.example.ecommercebackofficeproject.admin.repository.AdminRepository;
 import com.example.ecommercebackofficeproject.customer.entity.Customer;
 import com.example.ecommercebackofficeproject.customer.repository.CustomerRepository;
-import com.example.ecommercebackofficeproject.order.dto.CreateOrderRequest;
-import com.example.ecommercebackofficeproject.order.dto.CreateOrderResponse;
+import com.example.ecommercebackofficeproject.order.dto.request.CreateOrderRequestDto;
+import com.example.ecommercebackofficeproject.order.dto.response.CreateOrderResponseDto;
+import com.example.ecommercebackofficeproject.order.dto.response.GetOneOrderResponseDto;
 import com.example.ecommercebackofficeproject.order.entity.Order;
 import com.example.ecommercebackofficeproject.order.repository.OrderRepository;
 import com.example.ecommercebackofficeproject.product.entity.Product;
@@ -28,7 +28,7 @@ public class OrderService {
     private final AdminRepository adminRepository;
 
     @Transactional
-    public CreateOrderResponse createOrder(Long adminId, CreateOrderRequest request) {
+    public CreateOrderResponseDto createOrder(Long adminId, CreateOrderRequestDto request) {
         // todo - 단종 / 품절 / 재고 부족 / 고객 없음 / 상품 없음 / 403 처리
 
         // todo - 403 처리
@@ -38,13 +38,12 @@ public class OrderService {
         Customer customer = customerRepository.findById(request.getCustomerId()).orElseThrow(
                 () -> new IllegalStateException("고객을 찾을 수 없습니다.") // todo - 고객 없음 에러 처리
         );
-        if(product.getStatus() == ProductStatus.DISCONTINUED){ // todo - 단종된 상품 에러 처리
+        if (product.getStatus() == ProductStatus.DISCONTINUED) { // todo - 단종된 상품 에러 처리
             throw new IllegalArgumentException("단종된 상품은 주문할 수 없습니다.");
-        }
-        else if(product.getStatus() == ProductStatus.SOLD_OUT){ // todo - 품절된 상품 에러 처리
+        } else if (product.getStatus() == ProductStatus.SOLD_OUT) { // todo - 품절된 상품 에러 처리
             throw new IllegalArgumentException("품절된 상품은 주문할 수 없습니다.");
         }
-        if(request.getQuantity()>product.getStock()){
+        if (request.getQuantity() > product.getStock()) {
             throw new IllegalArgumentException("상품 재고가 부족합니다."); // todo - 재고 부족 에러 처리
         }
 
@@ -61,17 +60,28 @@ public class OrderService {
 
         orderRepository.save(order);
 
-        return CreateOrderResponse.builder()
+        return CreateOrderResponseDto.builder()
                 .id(order.getId())
                 .orderNumber(order.getOrderNumber())
                 .customerId(order.getCustomer().getId())
                 .productId(order.getProduct().getProductId())
                 .quantity(order.getQuantity())
                 .totalPrice(order.getTotalPrice())
-                .status(order.getStatus())
+                .orderStatus(order.getOrderStatus())
                 .orderedAt(order.getCreatedAt())
                 .createdByAdminId(order.getCreatedByAdminId())
                 .build();
+    }
+
+    @Transactional
+    public GetOneOrderResponseDto getOneOrder(Long adminId, Long orderId) {
+        // todo - 주문 404 / 403
+        Order order = orderRepository.findById(orderId).orElseThrow(
+                () -> new IllegalStateException("주문을 찾을 수 없습니다.") // todo - 주문 404 에러 처리
+        );
+
+
+        
     }
 
 
