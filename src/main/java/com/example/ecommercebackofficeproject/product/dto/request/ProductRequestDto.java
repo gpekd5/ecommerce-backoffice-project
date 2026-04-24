@@ -1,4 +1,4 @@
-package com.example.ecommercebackofficeproject.product.dto;
+package com.example.ecommercebackofficeproject.product.dto.request;
 
 import com.example.ecommercebackofficeproject.admin.entity.Admin;
 import com.example.ecommercebackofficeproject.product.entity.Product;
