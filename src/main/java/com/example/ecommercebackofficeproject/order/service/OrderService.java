@@ -73,16 +73,16 @@ public class OrderService {
                 .build();
     }
 
-    @Transactional
-    public GetOneOrderResponseDto getOneOrder(Long adminId, Long orderId) {
-        // todo - 주문 404 / 403
-        Order order = orderRepository.findById(orderId).orElseThrow(
-                () -> new IllegalStateException("주문을 찾을 수 없습니다.") // todo - 주문 404 에러 처리
-        );
-
-
-        
-    }
+//    @Transactional
+//    public GetOneOrderResponseDto getOneOrder(Long adminId, Long orderId) {
+//        // todo - 주문 404 / 403
+//        Order order = orderRepository.findById(orderId).orElseThrow(
+//                () -> new IllegalStateException("주문을 찾을 수 없습니다.") // todo - 주문 404 에러 처리
+//        );
+//
+//
+//
+//    }
 
 
     // 주문번호 생성 메서드 (ex. 20260424-001)
