@@ -7,7 +7,7 @@ import lombok.Getter;
 import java.time.LocalDateTime;
 
 @Getter
-public class GetCustomerDetailResponse {
+public class GetCustomerDetailResponseDto {
     private final Long id;
     private final String name;
     private final String email;
@@ -17,7 +17,7 @@ public class GetCustomerDetailResponse {
     private final Long totalOrderCount;
     private final Long totalOrderAmount;
 
-    public GetCustomerDetailResponse(
+    public GetCustomerDetailResponseDto(
             Long id,
             String name,
             String email,
@@ -37,12 +37,12 @@ public class GetCustomerDetailResponse {
         this.totalOrderAmount = totalOrderAmount;
     }
 
-    public static GetCustomerDetailResponse from(
+    public static GetCustomerDetailResponseDto from(
             Customer customer,
             Long totalOrderCount,
             Long totalOrderAmount
     ) {
-        return new GetCustomerDetailResponse(
+        return new GetCustomerDetailResponseDto(
                 customer.getId(),
                 customer.getName(),
                 customer.getEmail(),

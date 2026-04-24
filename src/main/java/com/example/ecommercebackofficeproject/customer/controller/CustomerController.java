@@ -1,6 +1,6 @@
 package com.example.ecommercebackofficeproject.customer.controller;
 
-import com.example.ecommercebackofficeproject.customer.dto.response.GetCustomerDetailResponse;
+import com.example.ecommercebackofficeproject.customer.dto.response.GetCustomerDetailResponseDto;
 import com.example.ecommercebackofficeproject.customer.dto.response.GetCustomerPageResponseDto;
 import com.example.ecommercebackofficeproject.customer.dto.request.GetCustomerRequestDto;
 import com.example.ecommercebackofficeproject.customer.service.CustomerService;
@@ -28,7 +28,7 @@ public class CustomerController {
     }
 
     @GetMapping("/customers/{customerId}")
-    public ResponseEntity<GetCustomerDetailResponse> getCustomer(
+    public ResponseEntity<GetCustomerDetailResponseDto> getCustomer(
             @PathVariable Long customerId
     ) {
         return ResponseEntity

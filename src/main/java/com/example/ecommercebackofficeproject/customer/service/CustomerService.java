@@ -1,6 +1,6 @@
 package com.example.ecommercebackofficeproject.customer.service;
 
-import com.example.ecommercebackofficeproject.customer.dto.response.GetCustomerDetailResponse;
+import com.example.ecommercebackofficeproject.customer.dto.response.GetCustomerDetailResponseDto;
 import com.example.ecommercebackofficeproject.customer.dto.response.GetCustomerPageResponseDto;
 import com.example.ecommercebackofficeproject.customer.dto.request.GetCustomerRequestDto;
 import com.example.ecommercebackofficeproject.customer.dto.response.GetCustomerResponseDto;
@@ -145,7 +145,7 @@ public class CustomerService {
 
     /*고객 상세 조회*/
     @Transactional(readOnly = true)
-    public GetCustomerDetailResponse getCustomer(Long customerId) {
+    public GetCustomerDetailResponseDto getCustomer(Long customerId) {
 
         Customer customer = customerRepository.findByIdAndDeletedAtIsNull(customerId)
                 .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 고객입니다."));
@@ -153,7 +153,7 @@ public class CustomerService {
         Long totalOrderCount = customerRepository.countOrdersByCustomerId(customer.getId());
         Long totalOrderAmount = customerRepository.sumTotalOrderAmountByCustomerId(customer.getId());
 
-        return GetCustomerDetailResponse.from(
+        return GetCustomerDetailResponseDto.from(
                 customer,
                 totalOrderCount,
                 totalOrderAmount
