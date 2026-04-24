@@ -3,7 +3,7 @@ package com.example.ecommercebackofficeproject.customer.dto.request;
 import lombok.Getter;
 
 @Getter
-public class GetCustomerRequest {
+public class GetCustomerRequestDto {
     private String keyword;
     private String status;
     private int page = 1;

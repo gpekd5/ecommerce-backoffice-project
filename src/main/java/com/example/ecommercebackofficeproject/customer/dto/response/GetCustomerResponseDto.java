@@ -1,12 +1,13 @@
 package com.example.ecommercebackofficeproject.customer.dto.response;
 
+import com.example.ecommercebackofficeproject.customer.entity.Customer;
 import com.example.ecommercebackofficeproject.customer.type.CustomerStatus;
 import lombok.Getter;
 
 import java.time.LocalDateTime;
 
 @Getter
-public class GetCustomerResponse {
+public class GetCustomerResponseDto {
     private Long id;
     private String name;
     private String email;
@@ -16,7 +17,7 @@ public class GetCustomerResponse {
     private Long totalOrderCount;
     private Long totalOrderAmount;
 
-    public GetCustomerResponse(
+    public GetCustomerResponseDto(
             Long id,
             String name,
             String email,
@@ -34,5 +35,22 @@ public class GetCustomerResponse {
         this.createdAt = createdAt;
         this.totalOrderCount = totalOrderCount;
         this.totalOrderAmount = totalOrderAmount;
+    }
+
+    public static GetCustomerResponseDto from(
+            Customer customer,
+            Long totalOrderCount,
+            Long totalOrderAmount
+    ) {
+        return new GetCustomerResponseDto(
+                customer.getId(),
+                customer.getName(),
+                customer.getEmail(),
+                customer.getPhone(),
+                customer.getStatus(),
+                customer.getCreatedAt(),
+                totalOrderCount,
+                totalOrderAmount
+        );
     }
 }
