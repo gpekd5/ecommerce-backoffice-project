@@ -203,4 +203,12 @@ public class CustomerService {
 
         return UpdateCustomerStatusResponseDto.from(customer);
     }
+
+    @Transactional
+    public void deleteCustomer(Long customerId) {
+        Customer customer = customerRepository.findByIdAndDeletedAtIsNull(customerId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 고객입니다."));
+
+        customer.delete();
+    }
 }
