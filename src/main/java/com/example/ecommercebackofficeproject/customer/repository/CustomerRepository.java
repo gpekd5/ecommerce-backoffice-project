@@ -34,4 +34,8 @@ public interface CustomerRepository extends JpaRepository<Customer, Long>, JpaSp
     Long sumTotalOrderAmountByCustomerId(@Param("customerId") Long customerId);
 
     Optional<Customer> findByIdAndDeletedAtIsNull(Long id);
+
+    boolean existsByEmailAndIdNot(String email, Long id);
+
+    boolean existsByPhoneAndIdNot(String phone, Long id);
 }
