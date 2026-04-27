@@ -32,7 +32,7 @@ public class AdminService {
                 request.getName(),
                 request.getPhone(),
                 request.getRole(),
-                AdminStatus.PENDING
+                AdminStatus.ACTIVE
         );
 
         Admin saveAdmin = adminRepository.save(admin);

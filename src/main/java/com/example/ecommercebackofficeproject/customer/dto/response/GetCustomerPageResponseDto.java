@@ -6,15 +6,15 @@ import org.springframework.data.domain.Page;
 import java.util.List;
 
 @Getter
-public class GetCustomerPageResponse {
-    private List<GetCustomerResponse> items;
+public class GetCustomerPageResponseDto {
+    private List<GetCustomerResponseDto> items;
     private int page;
     private int size;
     private long totalCount;
     private int totalPages;
 
-    public GetCustomerPageResponse(
-            List<GetCustomerResponse> items,
+    public GetCustomerPageResponseDto(
+            List<GetCustomerResponseDto> items,
             int page,
             int size,
             long totalCount,
@@ -27,13 +27,16 @@ public class GetCustomerPageResponse {
         this.totalPages = totalPages;
     }
 
-    public static GetCustomerPageResponse from(Page<GetCustomerResponse> customerPage) {
-        return new GetCustomerPageResponse(
-                customerPage.getContent(),
-                customerPage.getNumber() + 1,
-                customerPage.getSize(),
-                customerPage.getTotalElements(),
-                customerPage.getTotalPages()
+    public static GetCustomerPageResponseDto from(
+            Page<?> pageData,
+            List<GetCustomerResponseDto> items
+    ) {
+        return new GetCustomerPageResponseDto(
+                items,
+                pageData.getNumber() + 1,
+                pageData.getSize(),
+                pageData.getTotalElements(),
+                pageData.getTotalPages()
         );
     }
 
