@@ -149,4 +149,16 @@ public class Admin extends BaseEntity {
     public void updateStatus(AdminStatus status) {
         this.status = status;
     }
+
+    public void approve() {
+        this.status = AdminStatus.ACTIVE;
+        this.approvedAt = LocalDateTime.now();
+    }
+
+    public void reject(String rejectReason) {
+        this.status = AdminStatus.REJECTED;
+        this.rejectReason = rejectReason;
+        this.rejectedAt = LocalDateTime.now();
+    }
+
 }

@@ -1,9 +1,6 @@
 package com.example.ecommercebackofficeproject.admin.service;
 
-import com.example.ecommercebackofficeproject.admin.dto.request.SignupAdminRequestDto;
-import com.example.ecommercebackofficeproject.admin.dto.request.UpdateAdminRequestDto;
-import com.example.ecommercebackofficeproject.admin.dto.request.UpdateAdminRoleRequestDto;
-import com.example.ecommercebackofficeproject.admin.dto.request.UpdateAdminStatusRequestDto;
+import com.example.ecommercebackofficeproject.admin.dto.request.*;
 import com.example.ecommercebackofficeproject.admin.dto.response.*;
 import com.example.ecommercebackofficeproject.admin.entity.Admin;
 import com.example.ecommercebackofficeproject.admin.repository.AdminRepository;
@@ -156,6 +153,40 @@ public class AdminService {
         admin.updateStatus(request.getStatus());
 
         return UpdateAdminStatusResponseDto.from(admin);
+    }
+
+    @Transactional
+    public UpdateAdminApproveResponseDto approve(SessionAdminDto sessionAdmin, Long adminId) {
+        validateSuperAdmin(sessionAdmin);
+
+        Admin admin = adminRepository.findById(adminId).orElseThrow(
+                () -> new IllegalStateException("admin whit ID " + adminId + "not found.")
+        );
+
+        if (admin.getStatus() != AdminStatus.PENDING) {
+            throw new IllegalStateException("승인대기 상태의 관리자만 승인할 수 있습니다.");
+        }
+
+        admin.approve();
+
+        return UpdateAdminApproveResponseDto.from(admin);
+    }
+
+    @Transactional
+    public UpdateAdminRejectResponseDto reject(SessionAdminDto sessionAdmin, Long adminId, UpdateAdminRejectRequestDto request) {
+        validateSuperAdmin(sessionAdmin);
+
+        Admin admin = adminRepository.findById(adminId).orElseThrow(
+                () -> new IllegalStateException("admin whit ID " + adminId + "not found.")
+        );
+
+        if (admin.getStatus() != AdminStatus.PENDING) {
+            throw new IllegalStateException("승인대기 상태의 관리자만 승인할 수 있습니다.");
+        }
+
+        admin.reject(request.getRejectReason());
+
+        return UpdateAdminRejectResponseDto.from(admin);
     }
 
     /**

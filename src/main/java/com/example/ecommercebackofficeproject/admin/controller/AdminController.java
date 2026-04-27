@@ -1,9 +1,6 @@
 package com.example.ecommercebackofficeproject.admin.controller;
 
-import com.example.ecommercebackofficeproject.admin.dto.request.SignupAdminRequestDto;
-import com.example.ecommercebackofficeproject.admin.dto.request.UpdateAdminRequestDto;
-import com.example.ecommercebackofficeproject.admin.dto.request.UpdateAdminRoleRequestDto;
-import com.example.ecommercebackofficeproject.admin.dto.request.UpdateAdminStatusRequestDto;
+import com.example.ecommercebackofficeproject.admin.dto.request.*;
 import com.example.ecommercebackofficeproject.admin.dto.response.*;
 import com.example.ecommercebackofficeproject.admin.service.AdminService;
 import com.example.ecommercebackofficeproject.admin.type.AdminRole;
@@ -135,6 +132,23 @@ public class AdminController {
             @Valid @RequestBody UpdateAdminStatusRequestDto request
     ) {
         return ResponseEntity.status(HttpStatus.OK).body(adminService.updateAdminStatus(sessionAdmin, id, request));
+    }
+
+    @PatchMapping("/{id}/approve")
+    public ResponseEntity<UpdateAdminApproveResponseDto> approve(
+            @SessionAttribute(name = "loginUser") SessionAdminDto sessionAdmin,
+            @PathVariable Long id
+    ) {
+        return ResponseEntity.status(HttpStatus.OK).body(adminService.approve(sessionAdmin, id));
+    }
+
+    @PatchMapping("/{id}/reject")
+    public ResponseEntity<UpdateAdminRejectResponseDto> reject(
+            @SessionAttribute(name = "loginUser") SessionAdminDto sessionAdmin,
+            @PathVariable Long id,
+            @Valid @RequestBody UpdateAdminRejectRequestDto request
+    ) {
+        return ResponseEntity.status(HttpStatus.OK).body(adminService.reject(sessionAdmin, id, request));
     }
 
 }
