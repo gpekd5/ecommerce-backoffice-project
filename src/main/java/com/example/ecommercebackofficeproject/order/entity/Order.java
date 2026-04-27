@@ -1,5 +1,6 @@
 package com.example.ecommercebackofficeproject.order.entity;
 
+import com.example.ecommercebackofficeproject.admin.entity.Admin;
 import com.example.ecommercebackofficeproject.customer.entity.Customer;
 import com.example.ecommercebackofficeproject.global.common.BaseEntity;
 import com.example.ecommercebackofficeproject.order.type.OrderStatus;
@@ -40,20 +41,21 @@ public class Order extends BaseEntity {
     @Column(nullable = false)
     private OrderStatus orderStatus;
 
-    @Column(nullable = false)
-    private Long createdByAdminId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "admin_id", nullable = false)
+    private Admin admin;
 
     private String orderCancelReason;
 
     @Builder
-    public Order(String orderNumber, Customer customer, Product product, Integer quantity, Long createdByAdminId) {
+    public Order(String orderNumber, Customer customer, Product product, Integer quantity, Admin admin) {
         this.orderNumber = orderNumber;
         this.customer = customer;
         this.product = product;
         this.quantity = quantity;
         this.totalPrice = product.getPrice().intValue() * quantity;
         this.orderStatus = OrderStatus.PREPARING;
-        this.createdByAdminId = createdByAdminId;
+        this.admin = admin;
         this.orderCancelReason = null;
     }
 
