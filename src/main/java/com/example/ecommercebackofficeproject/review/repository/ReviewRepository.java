@@ -34,6 +34,7 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
             "JOIN r.product p " +
             "JOIN r.order o " +
             "WHERE (:keyword IS NULL OR c.name LIKE %:keyword% OR p.productName LIKE %:keyword%) " +
-            "AND (:rating IS NULL OR r.rating = :rating)")
+            "AND (:rating IS NULL OR r.rating = :rating) AND " +
+            "(r.deletedAt IS NULL)")
     Page<Review> findAllWithFilters(@Param("keyword") String keyword, @Param("rating") int rating, Pageable pageable);
 }

@@ -10,6 +10,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -45,7 +47,7 @@ public class ProductController {
      * @return 페이징 처리된 상품 응답 DTO 목록을 담은 ResponseEntity
      */
     @GetMapping("/products")
-    public ResponseEntity<Page<GetProductPageResponseDto>> getProductList(@RequestParam(required = false) String keyword, @RequestParam(required = false) String category, @RequestParam(required = false) String status, Pageable pageable) {
+    public ResponseEntity<Page<GetProductPageResponseDto>> getProductList(@RequestParam(required = false) String keyword, @RequestParam(required = false) String category, @RequestParam(required = false) String status, @PageableDefault(page = 1, size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
         return ResponseEntity.ok(productService.getProductList(keyword, category, status, pageable));
     }
 

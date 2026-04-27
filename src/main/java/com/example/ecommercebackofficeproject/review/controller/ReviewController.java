@@ -32,7 +32,7 @@ public class ReviewController {
      * @return 페이징 정보가 포함된 리뷰 응답 DTO 목록
      */
     @GetMapping("/reviews")
-    public ResponseEntity<Page<GetReviewPageResponseDto>> getReviewList(@RequestParam(required = false) String keyword, @RequestParam(required = false) int rating, @PageableDefault(page = 0, size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+    public ResponseEntity<Page<GetReviewPageResponseDto>> getReviewList(@RequestParam(required = false) String keyword, @RequestParam(required = false) int rating, @PageableDefault(page = 1, size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
         return ResponseEntity.ok(reviewService.getReviewList(keyword, rating, pageable));
     }
 
