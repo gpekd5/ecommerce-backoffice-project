@@ -14,7 +14,7 @@ public interface CustomerRepository extends JpaRepository<Customer, Long>, JpaSp
                     SELECT COUNT(*)
                     FROM orders
                     WHERE customer_id = :customerId
-                      AND status <> 'CANCELED'
+                      AND order_status <> 'CANCELED'
                       AND deleted_at IS NULL
                     """,
             nativeQuery = true
@@ -26,7 +26,7 @@ public interface CustomerRepository extends JpaRepository<Customer, Long>, JpaSp
                     SELECT COALESCE(SUM(total_price), 0)
                     FROM orders
                     WHERE customer_id = :customerId
-                      AND status <> 'CANCELED'
+                      AND order_status <> 'CANCELED'
                       AND deleted_at IS NULL
                     """,
             nativeQuery = true
