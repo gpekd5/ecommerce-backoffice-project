@@ -1,5 +1,6 @@
 package com.example.ecommercebackofficeproject.review.controller;
 
+import com.example.ecommercebackofficeproject.auth.dto.SessionAdminDto;
 import com.example.ecommercebackofficeproject.review.dto.response.GetReviewPageResponseDto;
 import com.example.ecommercebackofficeproject.review.dto.response.GetReviewResponseDto;
 import com.example.ecommercebackofficeproject.review.service.ReviewService;
@@ -9,10 +10,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 /**
  * 리뷰 관리를 위한 API 컨트롤러입니다.
@@ -46,5 +44,20 @@ public class ReviewController {
     @GetMapping("/review/{reviewId}")
     public ResponseEntity<GetReviewResponseDto> getReview(@PathVariable Long reviewId) {
         return ResponseEntity.ok(reviewService.getReview(reviewId));
+    }
+
+    /**
+     * 특정 리뷰를 삭제 처리합니다.
+     * 실제 데이터베이스에서 레코드를 삭제하지 않고, 삭제 일시(deletedAt)를 기록하여
+     * 논리적으로 삭제(Soft Delete) 상태로 변경합니다.
+     * @param reviewId 삭제할 리뷰의 고유 식별자(ID)
+     * @return 성공 시 응답 본문이 없는 ResponseEntity (204 No Content)
+     */
+    @DeleteMapping("/review/{reviewId}")
+    public ResponseEntity<Void> deleteReview(@PathVariable Long reviewId, @SessionAttribute(name="loginUser") SessionAdminDto sessionAdmin) {
+
+        reviewService.deleteReview(reviewId);
+
+        return ResponseEntity.noContent().build();
     }
 }
