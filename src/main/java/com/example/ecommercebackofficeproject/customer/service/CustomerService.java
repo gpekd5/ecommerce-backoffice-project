@@ -1,9 +1,11 @@
 package com.example.ecommercebackofficeproject.customer.service;
 
+import com.example.ecommercebackofficeproject.customer.dto.request.UpdateCustomerRequestDto;
 import com.example.ecommercebackofficeproject.customer.dto.response.GetCustomerDetailResponseDto;
 import com.example.ecommercebackofficeproject.customer.dto.response.GetCustomerPageResponseDto;
 import com.example.ecommercebackofficeproject.customer.dto.request.GetCustomerRequestDto;
 import com.example.ecommercebackofficeproject.customer.dto.response.GetCustomerResponseDto;
+import com.example.ecommercebackofficeproject.customer.dto.response.UpdateCustomerResponseDto;
 import com.example.ecommercebackofficeproject.customer.entity.Customer;
 import com.example.ecommercebackofficeproject.customer.repository.CustomerRepository;
 import com.example.ecommercebackofficeproject.customer.type.CustomerStatus;
@@ -158,5 +160,30 @@ public class CustomerService {
                 totalOrderCount,
                 totalOrderAmount
         );
+    }
+
+    @Transactional
+    public UpdateCustomerResponseDto updateCustomer(
+            Long customerId,
+            UpdateCustomerRequestDto request
+    ) {
+        Customer customer = customerRepository.findByIdAndDeletedAtIsNull(customerId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 고객입니다."));
+
+        if (customerRepository.existsByEmailAndIdNot(request.getEmail(), customerId)) {
+            throw new IllegalArgumentException("이미 사용 중인 이메일입니다.");
+        }
+
+        if (customerRepository.existsByPhoneAndIdNot(request.getPhone(), customerId)) {
+            throw new IllegalArgumentException("이미 사용 중인 전화번호입니다.");
+        }
+
+        customer.updateInfo(
+                request.getName(),
+                request.getEmail(),
+                request.getPhone()
+        );
+
+        return UpdateCustomerResponseDto.from(customer);
     }
 }

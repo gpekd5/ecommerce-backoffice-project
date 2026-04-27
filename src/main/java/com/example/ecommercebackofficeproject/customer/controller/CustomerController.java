@@ -1,16 +1,16 @@
 package com.example.ecommercebackofficeproject.customer.controller;
 
+import com.example.ecommercebackofficeproject.customer.dto.request.UpdateCustomerRequestDto;
 import com.example.ecommercebackofficeproject.customer.dto.response.GetCustomerDetailResponseDto;
 import com.example.ecommercebackofficeproject.customer.dto.response.GetCustomerPageResponseDto;
 import com.example.ecommercebackofficeproject.customer.dto.request.GetCustomerRequestDto;
+import com.example.ecommercebackofficeproject.customer.dto.response.UpdateCustomerResponseDto;
 import com.example.ecommercebackofficeproject.customer.service.CustomerService;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -34,5 +34,15 @@ public class CustomerController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(customerService.getCustomer(customerId));
+    }
+
+    @PatchMapping("/customers/{customerId}")
+    public ResponseEntity<UpdateCustomerResponseDto> updateCustomer(
+            @PathVariable Long customerId,
+            @Valid @RequestBody UpdateCustomerRequestDto request
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(customerService.updateCustomer(customerId, request));
     }
 }
