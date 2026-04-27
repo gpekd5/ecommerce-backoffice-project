@@ -1,9 +1,10 @@
 package com.example.ecommercebackofficeproject.admin.service;
 
 import com.example.ecommercebackofficeproject.admin.dto.request.SignupAdminRequestDto;
-import com.example.ecommercebackofficeproject.admin.dto.response.GetAdminResponseDto;
-import com.example.ecommercebackofficeproject.admin.dto.response.GetAdminsPageResponseDto;
-import com.example.ecommercebackofficeproject.admin.dto.response.SignupAdminResponseDto;
+import com.example.ecommercebackofficeproject.admin.dto.request.UpdateAdminRequestDto;
+import com.example.ecommercebackofficeproject.admin.dto.request.UpdateAdminRoleRequestDto;
+import com.example.ecommercebackofficeproject.admin.dto.request.UpdateAdminStatusRequestDto;
+import com.example.ecommercebackofficeproject.admin.dto.response.*;
 import com.example.ecommercebackofficeproject.admin.entity.Admin;
 import com.example.ecommercebackofficeproject.admin.repository.AdminRepository;
 import com.example.ecommercebackofficeproject.admin.type.AdminRole;
@@ -116,6 +117,45 @@ public class AdminService {
         );
 
         return GetAdminResponseDto.from(admin);
+    }
+
+    @Transactional
+    public UpdateAdminResponseDto updateAdminInfo(SessionAdminDto sessionAdmin, Long adminId, UpdateAdminRequestDto request) {
+        validateSuperAdmin(sessionAdmin);
+
+        Admin admin = adminRepository.findById(adminId).orElseThrow(
+                () -> new IllegalStateException("admin whit ID " + adminId + "not found.")
+        );
+
+        admin.updateInfo(request.getName(), request.getEmail(), request.getPhone());
+
+        return UpdateAdminResponseDto.from(admin);
+    }
+
+    @Transactional
+    public UpdateAdminRoleResponseDto updateAdminRole(SessionAdminDto sessionAdmin, Long adminId, UpdateAdminRoleRequestDto request) {
+        validateSuperAdmin(sessionAdmin);
+
+        Admin admin = adminRepository.findById(adminId).orElseThrow(
+                () -> new IllegalStateException("admin whit ID " + adminId + "not found.")
+        );
+
+        admin.updateRole(request.getRole());
+
+        return UpdateAdminRoleResponseDto.from(admin);
+    }
+
+    @Transactional
+        public UpdateAdminStatusResponseDto updateAdminStatus(SessionAdminDto sessionAdmin, Long adminId, UpdateAdminStatusRequestDto request) {
+        validateSuperAdmin(sessionAdmin);
+
+        Admin admin = adminRepository.findById(adminId).orElseThrow(
+                () -> new IllegalStateException("admin whit ID " + adminId + "not found.")
+        );
+
+        admin.updateStatus(request.getStatus());
+
+        return UpdateAdminStatusResponseDto.from(admin);
     }
 
     /**
