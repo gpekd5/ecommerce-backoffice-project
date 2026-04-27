@@ -1,5 +1,6 @@
 package com.example.ecommercebackofficeproject.product.controller;
 
+import com.example.ecommercebackofficeproject.auth.dto.SessionAdminDto;
 import com.example.ecommercebackofficeproject.product.dto.request.ProductRequestDto;
 import com.example.ecommercebackofficeproject.product.dto.response.ProductResponseDto;
 import com.example.ecommercebackofficeproject.product.service.ProductService;
@@ -21,12 +22,12 @@ public class ProductController {
     /**
      * 새로운 상품을 등록합니다.
      * @param dto 상품 등록 요청 정보
-     * @param sessionUser 세션에 저장된 로그인 유저 정보
+     * @param sessionAdmin 세션에 저장된 로그인 유저 정보
      * @return 등록된 상품 정보
      */
     @PostMapping("/products")
-    public ResponseEntity<ProductResponseDto> saveProduct(@Valid @RequestBody ProductRequestDto dto, @SessionAttribute(name="loginUser") SessionUserDto sessionUser) {
+    public ResponseEntity<ProductResponseDto> saveProduct(@Valid @RequestBody ProductRequestDto dto, @SessionAttribute(name="loginUser") SessionAdminDto sessionAdmin) {
 
-        return ResponseEntity.status(HttpStatus.CREATED).body(productService.saveProduct(dto, sessionUser.getAdminId()));
+        return ResponseEntity.status(HttpStatus.CREATED).body(productService.saveProduct(dto, sessionAdmin.getAdminId()));
     }
 }

@@ -1,5 +1,6 @@
 package com.example.ecommercebackofficeproject.order.controller;
 
+import com.example.ecommercebackofficeproject.auth.dto.SessionAdminDto;
 import com.example.ecommercebackofficeproject.order.dto.request.CreateOrderRequestDto;
 import com.example.ecommercebackofficeproject.order.dto.response.CreateOrderResponseDto;
 import com.example.ecommercebackofficeproject.order.service.OrderService;
@@ -18,9 +19,9 @@ public class OrderController {
     private final OrderService orderService;
 
     @PostMapping
-    public ResponseEntity<CreateOrderResponseDto> createOrder(@SessionAttribute(name = "loginUser"/**수정 예정*/) SessionUserDto sessionUser,
+    public ResponseEntity<CreateOrderResponseDto> createOrder(@SessionAttribute(name = "loginUser"/**수정 예정*/) SessionAdminDto sessionAdmin,
                                                               @Valid @RequestBody CreateOrderRequestDto request) {
-        CreateOrderResponseDto result = orderService.createOrder(sessionUser.getId()/**메서드 명 수정 예정*/, request);
+        CreateOrderResponseDto result = orderService.createOrder(sessionAdmin.getAdminId()/**메서드 명 수정 예정*/, request);
         return ResponseEntity.status(HttpStatus.CREATED).body(result);
     }
 }
