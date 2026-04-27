@@ -1,13 +1,11 @@
 package com.example.ecommercebackofficeproject.order.controller;
 
 import com.example.ecommercebackofficeproject.auth.dto.SessionAdminDto;
+import com.example.ecommercebackofficeproject.order.dto.request.CancelOrderRequestDto;
 import com.example.ecommercebackofficeproject.order.dto.request.CreateOrderRequestDto;
 import com.example.ecommercebackofficeproject.order.dto.request.GetOrderRequestParamDto;
 import com.example.ecommercebackofficeproject.order.dto.request.UpdateOrderRequestDto;
-import com.example.ecommercebackofficeproject.order.dto.response.CreateOrderResponseDto;
-import com.example.ecommercebackofficeproject.order.dto.response.GetListOrderResponseDto;
-import com.example.ecommercebackofficeproject.order.dto.response.GetOneOrderResponseDto;
-import com.example.ecommercebackofficeproject.order.dto.response.UpdateOrderResponseDto;
+import com.example.ecommercebackofficeproject.order.dto.response.*;
 import com.example.ecommercebackofficeproject.order.service.OrderService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -29,20 +27,32 @@ public class OrderController {
     }
 
     @GetMapping("/{orderId}")
-    public ResponseEntity<GetOneOrderResponseDto> getOneOrder(@SessionAttribute(name = "loginUser") SessionAdminDto sessionAdminDto, @PathVariable Long orderId) {
+    public ResponseEntity<GetOneOrderResponseDto> getOneOrder(@SessionAttribute(name = "loginUser") SessionAdminDto sessionAdminDto,
+                                                              @PathVariable Long orderId) {
         GetOneOrderResponseDto result = orderService.getOneOrder(sessionAdminDto.getAdminId(), orderId);
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
     @GetMapping
-    public ResponseEntity<GetListOrderResponseDto> getListOrder(@SessionAttribute(name = "loginUser") SessionAdminDto sessionAdminDto, GetOrderRequestParamDto requestParam) {
+    public ResponseEntity<GetListOrderResponseDto> getListOrder(@SessionAttribute(name = "loginUser") SessionAdminDto sessionAdminDto,
+                                                                GetOrderRequestParamDto requestParam) {
         GetListOrderResponseDto results = orderService.getListOrder(sessionAdminDto.getAdminId(), requestParam);
         return ResponseEntity.status(HttpStatus.OK).body(results);
     }
 
     @PatchMapping("/{orderId}")
-    public ResponseEntity<UpdateOrderResponseDto> updateOrder(@SessionAttribute(name = "loginUser") SessionAdminDto sessionAdminDto, @PathVariable Long orderId, @Valid @RequestBody UpdateOrderRequestDto request) {
+    public ResponseEntity<UpdateOrderResponseDto> updateOrder(@SessionAttribute(name = "loginUser") SessionAdminDto sessionAdminDto,
+                                                              @PathVariable Long orderId,
+                                                              @Valid @RequestBody UpdateOrderRequestDto request) {
         UpdateOrderResponseDto result = orderService.updateOrder(sessionAdminDto.getAdminId(), orderId, request);
+        return ResponseEntity.status(HttpStatus.OK).body(result);
+    }
+
+    @PatchMapping("/{orderId}")
+    public ResponseEntity<CancelOrderResponseDto> cancelOrder(@SessionAttribute(name = "loginUser") SessionAdminDto sessionAdminDto,
+                                                              @PathVariable Long orderId,
+                                                              @Valid @RequestBody CancelOrderRequestDto request) {
+        CancelOrderResponseDto result = orderService.cancelOrder(sessionAdminDto.getAdminId(), orderId, request);
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 }

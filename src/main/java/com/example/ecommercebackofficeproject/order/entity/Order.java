@@ -63,4 +63,8 @@ public class Order extends BaseEntity {
         this.orderStatus = orderStatus;
     }
 
+    public void addOrderCancelReason(String reason) {
+        this.orderCancelReason = reason;
+    }
+
 }
