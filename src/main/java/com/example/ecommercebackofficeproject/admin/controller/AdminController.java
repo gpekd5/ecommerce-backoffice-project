@@ -1,9 +1,10 @@
 package com.example.ecommercebackofficeproject.admin.controller;
 
 import com.example.ecommercebackofficeproject.admin.dto.request.SignupAdminRequestDto;
-import com.example.ecommercebackofficeproject.admin.dto.response.GetAdminResponseDto;
-import com.example.ecommercebackofficeproject.admin.dto.response.GetAdminsPageResponseDto;
-import com.example.ecommercebackofficeproject.admin.dto.response.SignupAdminResponseDto;
+import com.example.ecommercebackofficeproject.admin.dto.request.UpdateAdminRequestDto;
+import com.example.ecommercebackofficeproject.admin.dto.request.UpdateAdminRoleRequestDto;
+import com.example.ecommercebackofficeproject.admin.dto.request.UpdateAdminStatusRequestDto;
+import com.example.ecommercebackofficeproject.admin.dto.response.*;
 import com.example.ecommercebackofficeproject.admin.service.AdminService;
 import com.example.ecommercebackofficeproject.admin.type.AdminRole;
 import com.example.ecommercebackofficeproject.admin.type.AdminStatus;
@@ -108,4 +109,32 @@ public class AdminController {
         return ResponseEntity.status(HttpStatus.OK)
                 .body(adminService.findById(sessionAdmin, id));
     }
+
+    @PatchMapping("/{id}")
+    public ResponseEntity<UpdateAdminResponseDto> updateAdminInfo(
+            @SessionAttribute(name = "loginUser") SessionAdminDto sessionAdmin,
+            @PathVariable Long id,
+            @Valid @RequestBody UpdateAdminRequestDto request
+    ) {
+        return ResponseEntity.status(HttpStatus.OK).body(adminService.updateAdminInfo(sessionAdmin, id, request));
+    }
+
+    @PatchMapping("/{id}/role")
+    public ResponseEntity<UpdateAdminRoleResponseDto> updateAdminRole(
+            @SessionAttribute(name = "loginUser") SessionAdminDto sessionAdmin,
+            @PathVariable Long id,
+            @Valid @RequestBody UpdateAdminRoleRequestDto request
+    ) {
+        return ResponseEntity.status(HttpStatus.OK).body(adminService.updateAdminRole(sessionAdmin, id, request));
+    }
+
+    @PatchMapping("/{id}/status")
+        public ResponseEntity<UpdateAdminStatusResponseDto> updateAdminStatus(
+            @SessionAttribute(name = "loginUser") SessionAdminDto sessionAdmin,
+            @PathVariable Long id,
+            @Valid @RequestBody UpdateAdminStatusRequestDto request
+    ) {
+        return ResponseEntity.status(HttpStatus.OK).body(adminService.updateAdminStatus(sessionAdmin, id, request));
+    }
+
 }
