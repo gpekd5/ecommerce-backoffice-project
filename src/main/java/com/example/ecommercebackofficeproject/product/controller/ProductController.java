@@ -8,7 +8,6 @@ import com.example.ecommercebackofficeproject.product.dto.response.GetProductRes
 import com.example.ecommercebackofficeproject.product.service.ProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.apache.coyote.Response;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -82,5 +81,18 @@ public class ProductController {
     @PatchMapping("/products/{productId}")
     public ResponseEntity<GetProductResponseDto> updateProductStatus(@PathVariable Long productId, @Valid @RequestBody ProductRequestDto dto, @SessionAttribute(name="loginUser") SessionAdminDto sessionAdmin) {
         return ResponseEntity.ok(productService.updateProductStatus(productId, dto));
+    }
+
+    /**
+     * 특정 상품을 삭제 처리합니다.
+     * 실제 데이터베이스에서 레코드를 삭제하지 않고, 삭제 일시(deletedAt)를 기록하여
+     * 논리적으로 삭제(Soft Delete) 상태로 변경합니다.
+     * @param productId 삭제할 상품의 고유 식별자(ID)
+     * @return 성공 시 응답 본문이 없는 ResponseEntity (204 No Content)
+     */
+    @DeleteMapping("/products/{productId}")
+    public ResponseEntity<Void> deleteProduct(@PathVariable Long productId) {
+        productService.deleteProduct(productId);
+        return ResponseEntity.noContent().build();
     }
 }
