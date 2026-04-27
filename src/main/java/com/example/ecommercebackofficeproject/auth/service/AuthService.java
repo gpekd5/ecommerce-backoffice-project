@@ -2,7 +2,6 @@ package com.example.ecommercebackofficeproject.auth.service;
 
 import com.example.ecommercebackofficeproject.admin.entity.Admin;
 import com.example.ecommercebackofficeproject.admin.repository.AdminRepository;
-import com.example.ecommercebackofficeproject.admin.type.AdminStatus;
 import com.example.ecommercebackofficeproject.auth.dto.LoginRequestDto;
 import com.example.ecommercebackofficeproject.auth.dto.SessionAdminDto;
 import com.example.ecommercebackofficeproject.global.security.PasswordEncoder;
@@ -10,29 +9,57 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+/**
+ * 관리자 인증 비즈니스 로직 처리 서비스.
+ *
+ * 관리자 로그인, 비밀번호 검증, 계정 상태 검증 기능 처리.
+ */
 @Service
 @RequiredArgsConstructor
 public class AuthService {
 
+    /**
+     * 관리자 데이터 접근 Repository.
+     */
     private final AdminRepository adminRepository;
+
+    /**
+     * 비밀번호 암호화 및 검증 처리 객체.
+     */
     private final PasswordEncoder passwordEncoder;
 
+    /**
+     * 관리자 로그인 처리.
+     *
+     * 이메일 기준 관리자 조회 후 비밀번호 일치 여부 검증.
+     * 관리자 계정 상태 검증 후 세션 저장용 관리자 정보 반환.
+     *
+     * @param request 관리자 로그인 요청 DTO
+     * @return 세션 저장용 관리자 DTO
+     */
     @Transactional
     public SessionAdminDto login(LoginRequestDto request) {
 
         Admin admin = adminRepository.findByEmail(request.getEmail())
                 .orElseThrow(() -> new IllegalStateException("이메일 또는 비밀번호가 일치하지 않습니다."));
 
-        if (!passwordEncoder.matches(request.getPassword(),admin.getPassword())) {
+        if (!passwordEncoder.matches(request.getPassword(), admin.getPassword())) {
             throw new IllegalStateException("이메일 또는 비밀번호가 일치하지 않습니다.");
         }
 
-        vaildateAdminStatus(admin);
+        validateAdminStatus(admin);
 
         return SessionAdminDto.from(admin);
     }
 
-    private void vaildateAdminStatus(Admin admin) {
+    /**
+     * 관리자 계정 상태 검증.
+     *
+     * 활성 상태가 아닌 경우 계정 상태에 따른 예외 발생.
+     *
+     * @param admin 관리자 엔티티
+     */
+    private void validateAdminStatus(Admin admin) {
         switch (admin.getStatus()) {
             case ACTIVE:
                 return;
