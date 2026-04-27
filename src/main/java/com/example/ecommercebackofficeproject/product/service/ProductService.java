@@ -2,10 +2,12 @@ package com.example.ecommercebackofficeproject.product.service;
 
 import com.example.ecommercebackofficeproject.admin.entity.Admin;
 import com.example.ecommercebackofficeproject.admin.repository.AdminRepository;
+import com.example.ecommercebackofficeproject.auth.dto.SessionAdminDto;
 import com.example.ecommercebackofficeproject.product.dto.request.ProductRequestDto;
 import com.example.ecommercebackofficeproject.product.dto.response.CreateProductResponseDto;
 import com.example.ecommercebackofficeproject.product.dto.response.GetProductPageResponseDto;
 import com.example.ecommercebackofficeproject.product.dto.response.GetProductResponseDto;
+import com.example.ecommercebackofficeproject.product.entity.Product;
 import com.example.ecommercebackofficeproject.product.repository.ProductRepository;
 import com.example.ecommercebackofficeproject.product.type.ProductCategory;
 import com.example.ecommercebackofficeproject.product.type.ProductStatus;
@@ -52,7 +54,6 @@ public class ProductService {
      */
     @Transactional(readOnly = true)
     public Page<GetProductPageResponseDto> getProductList(String keyword, String category, String status, Pageable pageable) {
-
         return productRepository.findAllWithFilters(keyword, ProductCategory.valueOf(category), ProductStatus.valueOf(status), pageable).map(GetProductPageResponseDto::new);
     }
 
@@ -65,5 +66,35 @@ public class ProductService {
     @Transactional(readOnly = true)
     public GetProductResponseDto getProduct(Long productId) {
         return productRepository.findById(productId).map(GetProductResponseDto::new).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 상품입니다."));
+    }
+
+    /**
+     * 기존 상품의 기본 정보(상품명, 카테고리, 가격)를 수정합니다.
+     * @param productId 수정할 상품의 고유 식별자(ID)
+     * @param dto       수정할 데이터(상품명, 카테고리, 가격)를 담은 객체
+     * @return 수정된 상품 정보 응답 DTO
+     * @throws IllegalArgumentException 존재하지 않는 상품 ID인 경우 발생
+     */
+    @Transactional
+    public GetProductResponseDto updateProductInfo(Long productId, @Valid ProductRequestDto dto) {
+
+        Product product = productRepository.findById(productId).orElseThrow(() -> new IllegalArgumentException("발견된 상품이 없습니다."));
+
+        return new GetProductResponseDto(product.updateInfo(dto.getProductName(), dto.getCategory(), dto.getPrice()));
+    }
+
+    /**
+     * 상품의 판매 상태를 수동으로 변경합니다.
+     * @param productId 상태를 변경할 상품의 고유 식별자(ID)
+     * @param dto       변경할 상태 정보를 담은 객체
+     * @return 상태가 변경된 상품 정보 응답 DTO
+     * @throws IllegalArgumentException 존재하지 않는 상품 ID인 경우 발생
+     */
+    @Transactional
+    public GetProductResponseDto updateProductStatus(Long productId, @Valid ProductRequestDto dto) {
+
+        Product product = productRepository.findById(productId).orElseThrow(() -> new IllegalArgumentException("발견된 상품이 없습니다."));
+
+        return new GetProductResponseDto(product.updateStatus(dto.getStatus()));
     }
 }
