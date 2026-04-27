@@ -5,6 +5,7 @@ import com.example.ecommercebackofficeproject.admin.repository.AdminRepository;
 import com.example.ecommercebackofficeproject.auth.dto.SessionAdminDto;
 import com.example.ecommercebackofficeproject.customer.entity.Customer;
 import com.example.ecommercebackofficeproject.customer.repository.CustomerRepository;
+import com.example.ecommercebackofficeproject.order.dto.request.CancelOrderRequestDto;
 import com.example.ecommercebackofficeproject.order.dto.request.GetOrderRequestParamDto;
 import com.example.ecommercebackofficeproject.order.dto.request.CreateOrderRequestDto;
 import com.example.ecommercebackofficeproject.order.dto.request.UpdateOrderRequestDto;
@@ -176,11 +177,11 @@ public class OrderService {
     @Transactional
     public UpdateOrderResponseDto updateOrder(Long adminId, Long orderId, UpdateOrderRequestDto request) {
         Order order = orderRepository.findById(orderId).orElseThrow(
-                () -> new IllegalStateException("나중에 처리 예정") // custom exception
+                () -> new IllegalStateException("나중에 처리 예정") // todo - custom exception
         );
 
         if (!order.getOrderStatus().canChangeTo(request.getOrderStatus())) {
-            throw new IllegalArgumentException("나중에 처리 예정"); // custom exception
+            throw new IllegalArgumentException("나중에 처리 예정"); // todo - custom exception
         }
 
         order.changeOrderStatus(request.getOrderStatus());
@@ -191,6 +192,26 @@ public class OrderService {
                 .build();
     }
 
+    @Transactional
+    public CancelOrderResponseDto cancelOrder(Long adminId, Long orderId, CancelOrderRequestDto request) {
+        Order order = orderRepository.findById(orderId).orElseThrow(
+                () -> new IllegalStateException("나중에 처리 예정") // todo - custom exception
+        );
+        order.addOrderCancelReason(request.getOrderCancelReason());
+        // todo - 재고 복구 method
+
+        return CancelOrderResponseDto.builder()
+                .id(order.getId())
+                .orderNumber(order.getOrderNumber())
+                .orderStatus(order.getOrderStatus())
+                .cancelReason(order.getOrderCancelReason())
+                .canceledAt(order.getDeletedAt()) // 검토 필요
+                .productId(order.getProduct().getProductId())
+                .productName(order.getProduct().getProductName())
+                .restoredQuantity(order.getQuantity())
+                .currentStock(order.getProduct().getStock())
+                .productStatus(order.getProduct().getStatus()).build();
+    }
 
     /**
      * 주문 번호를 생성하는 메서드 입니다.
