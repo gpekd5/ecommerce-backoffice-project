@@ -29,14 +29,26 @@ public interface AdminRepository extends JpaRepository<Admin, Long> {
     Boolean existsByEmail(String email);
 
     /**
-     * 이메일 기준 관리자 조회.
+     * 이메일 기준 삭제되지 않은 관리자 조회.
      *
-     * 로그인 및 관리자 계정 확인용 조회.
+     * 로그인 및 관리자 계정 확인 시 사용한다.
+     * 소프트 삭제된 관리자는 조회 대상에서 제외한다.
      *
-     * @param email 조회할 이메일
-     * @return 관리자 엔티티 Optional 객체
+     * @param email 조회할 관리자 이메일
+     * @return 삭제되지 않은 관리자 엔티티 Optional 객체
      */
-    Optional<Admin> findByEmail(String email);
+    Optional<Admin> findByEmailAndDeletedAtIsNull(String email);
+
+    /**
+     * 아이디 기준 삭제되지 않은 관리자 조회.
+     *
+     * 로그인 및 관리자 계정 확인 시 사용한다.
+     * 소프트 삭제된 관리자는 조회 대상에서 제외한다.
+     *
+     * @param adminId 조회할 관리자 아이디
+     * @return 삭제되지 않은 관리자 엔티티 Optional 객체
+     */
+    Optional<Admin> findByIdAndDeletedAtIsNull(Long adminId);
 
     /**
      * 관리자 목록 조건 검색.
@@ -56,6 +68,7 @@ public interface AdminRepository extends JpaRepository<Admin, Long> {
             WHERE (:keyword IS NULL OR a.name LIKE %:keyword% OR a.email LIKE %:keyword%)
               AND (:role IS NULL OR a.role = :role)
               AND (:status IS NULL OR a.status = :status)
+              AND a.deletedAt IS NULL
     """)
     Page<Admin> findAdminsByFilter(
             @Param("keyword") String keyword,

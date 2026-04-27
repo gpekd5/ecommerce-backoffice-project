@@ -67,7 +67,7 @@ public class AdminService {
     }
 
     /**
-     * 관리자 목록 조회.
+     * 관리자 목록 조회. (소프트 삭제 데이터 제외)
      *
      * 슈퍼 관리자 권한 검증 후 키워드, 역할, 상태 조건을 기준으로 관리자 목록 조회.
      * 페이지네이션 및 정렬 조건 적용.
@@ -96,7 +96,7 @@ public class AdminService {
     }
 
     /**
-     * 관리자 단건 조회.
+     * 관리자 단건 조회.(소프트 삭제 데이터 제외)
      *
      * 슈퍼 관리자 권한 검증 후 관리자 ID 기준 관리자 정보 조회.
      *
@@ -109,7 +109,7 @@ public class AdminService {
 
         validateSuperAdmin(sessionAdmin);
 
-        Admin admin = adminRepository.findById(adminId).orElseThrow(
+        Admin admin = adminRepository.findByIdAndDeletedAtIsNull(adminId).orElseThrow(
                 () -> new IllegalStateException("admin whit ID " + adminId + "not found.")
         );
 
@@ -187,6 +187,17 @@ public class AdminService {
         admin.reject(request.getRejectReason());
 
         return UpdateAdminRejectResponseDto.from(admin);
+    }
+
+    @Transactional
+    public void delete(SessionAdminDto sessionAdmin, Long adminId) {
+        validateSuperAdmin(sessionAdmin);
+
+        Admin admin = adminRepository.findById(adminId).orElseThrow(
+                () -> new IllegalStateException("admin whit ID " + adminId + "not found.")
+        );
+
+        admin.delete();
     }
 
     /**
