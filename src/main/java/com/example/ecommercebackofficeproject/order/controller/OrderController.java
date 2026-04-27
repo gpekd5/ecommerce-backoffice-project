@@ -43,5 +43,6 @@ public class OrderController {
     @PatchMapping("/{orderId}")
     public ResponseEntity<UpdateOrderResponseDto> updateOrder(@SessionAttribute(name = "loginUser") SessionAdminDto sessionAdminDto, @PathVariable Long orderId, @Valid @RequestBody UpdateOrderRequestDto request) {
         UpdateOrderResponseDto result = orderService.updateOrder(sessionAdminDto.getAdminId(), orderId, request);
+        return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 }
