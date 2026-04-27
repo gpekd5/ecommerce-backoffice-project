@@ -43,12 +43,25 @@ public class ReviewService {
      * @throws IllegalArgumentException 존재하지 않는 리뷰 ID를 조회하려 할 경우 발생
      */
     public GetReviewResponseDto getReview(Long reviewId) {
-        Review review = reviewRepository.findById(reviewId).orElseThrow(() -> new IllegalArgumentException(""));
+        Review review = reviewRepository.findById(reviewId).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 리뷰입니다."));
 
         if(review.isDeleted()) {
             throw new IllegalStateException("삭제된 상품입니다.");
         }
 
         return new GetReviewResponseDto(review);
+    }
+
+    /**
+     * 특정 리뷰를 논리적으로 삭제합니다.
+     * 리뷰 엔티티의 삭제 상태를 업데이트하여 실제 데이터는 보존하되,
+     * 향후 조회 목록에서는 제외되도록 처리합니다.
+     * @param reviewId 삭제할 리뷰의 고유 식별자(ID)
+     * @throws IllegalArgumentException 해당 ID를 가진 리뷰가 DB에 존재하지 않을 경우 발생
+     */
+    public void deleteReview(Long reviewId) {
+        Review review = reviewRepository.findById(reviewId).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 리뷰입니다."));
+
+        review.delete();
     }
 }
