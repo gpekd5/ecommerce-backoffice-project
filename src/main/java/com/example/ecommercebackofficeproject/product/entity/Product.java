@@ -67,4 +67,36 @@ public class Product extends BaseEntity {
         this.price = price;
         return this;
     }
+
+    /**
+     * 관리자에 의해 상품 상태를 수동으로 변경합니다.
+     * 변경 후 현재 재고 상황에 맞게 상태를 재검증합니다.
+     */
+    public Product updateStatus(ProductStatus status) {
+        this.status = status;
+
+        // 관리자가 '판매 중'을 선택해도 재고가 0이면 다시 '품절'로 보호하기 위함
+        this.autoUpdateStatus();
+
+        return this;
+    }
+
+    /**
+     * 재고 수량에 기초하여 상품 상태를 자동으로 업데이트합니다.
+     * 단종(DISCONTINUED) 상태는 시스템이 마음대로 변경하지 못하도록 방어합니다.
+     */
+    public void autoUpdateStatus() {
+        // 단종 상태라면 시스템이 건드리지 않고 그대로 유지
+        if(this.status == ProductStatus.DISCONTINUED) {
+            return;
+        }
+
+        // 재고에 따른 상태 결정
+        if(this.stock <= 0) {
+            this.status = ProductStatus.SOLD_OUT;
+        } else {
+            this.status = ProductStatus.AVAILABLE;
+        }
+    }
+
 }

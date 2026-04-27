@@ -8,6 +8,7 @@ import com.example.ecommercebackofficeproject.product.dto.response.GetProductRes
 import com.example.ecommercebackofficeproject.product.service.ProductService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.apache.coyote.Response;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -25,13 +26,12 @@ public class ProductController {
 
     /**
      * 새로운 상품을 등록합니다.
-     * @param dto 상품 등록 요청 정보
-     * @param sessionAdmin 세션에 저장된 로그인 유저 정보
+     * @param dto           상품 등록 요청 정보
+     * @param sessionAdmin  세션에 저장된 로그인 유저 정보
      * @return 등록된 상품 정보
      */
     @PostMapping("/products")
-    public ResponseEntity<ProductResponseDto> saveProduct(@Valid @RequestBody ProductRequestDto dto, @SessionAttribute(name="loginUser") SessionAdminDto sessionAdmin) {
-
+    public ResponseEntity<CreateProductResponseDto> saveProduct(@Valid @RequestBody ProductRequestDto dto, @SessionAttribute(name="loginUser") SessionAdminDto sessionAdmin) {
         return ResponseEntity.status(HttpStatus.CREATED).body(productService.saveProduct(dto, sessionAdmin.getAdminId()));
     }
 
@@ -58,5 +58,29 @@ public class ProductController {
     @GetMapping("/products/{productId}")
     public ResponseEntity<GetProductResponseDto> getProduct(@PathVariable Long productId) {
         return ResponseEntity.ok(productService.getProduct(productId));
+    }
+
+    /**
+     * 특정 상품의 기본 정보(상품명, 카테고리, 가격 등)를 수정합니다.
+     * @param productId    수정할 상품의 고유 식별자(ID)
+     * @param dto          수정할 상품 정보 요청 데이터 (상품명, 카테고리, 가격 등)
+     * @param sessionAdmin 세션에서 가져온 관리자 정보 (수정 권한 확인용)  해당 로직을 글로벌로 구현 할지 고민중
+     * @return 수정이 완료된 상품의 상세 정보 DTO
+     */
+    @PatchMapping("/products/{productId}")
+    public ResponseEntity<GetProductResponseDto> updateProductInfo(@PathVariable Long productId, @Valid @RequestBody ProductRequestDto dto, @SessionAttribute(name="loginUser") SessionAdminDto sessionAdmin) {
+        return ResponseEntity.ok(productService.updateProductInfo(productId, dto));
+    }
+
+    /**
+     * 특정 상품의 판매 상태(판매 중, 품절, 단종 등)를 수동으로 변경합니다.
+     * @param productId    상태를 변경할 상품의 고유 식별자(ID)
+     * @param dto          변경할 상태 정보를 담은 요청 데이터
+     * @param sessionAdmin 세션에서 가져온 관리자 정보 (수정 권한 확인용)  해당 로직을 글로벌로 구현 할지 고민중
+     * @return 상태 변경이 완료된 상품의 상세 정보 DTO
+     */
+    @PatchMapping("/products/{productId}")
+    public ResponseEntity<GetProductResponseDto> updateProductStatus(@PathVariable Long productId, @Valid @RequestBody ProductRequestDto dto, @SessionAttribute(name="loginUser") SessionAdminDto sessionAdmin) {
+        return ResponseEntity.ok(productService.updateProductStatus(productId, dto));
     }
 }
