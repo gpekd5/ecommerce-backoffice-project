@@ -2,13 +2,16 @@ package com.example.ecommercebackofficeproject.order.service;
 
 import com.example.ecommercebackofficeproject.admin.entity.Admin;
 import com.example.ecommercebackofficeproject.admin.repository.AdminRepository;
+import com.example.ecommercebackofficeproject.auth.dto.SessionAdminDto;
 import com.example.ecommercebackofficeproject.customer.entity.Customer;
 import com.example.ecommercebackofficeproject.customer.repository.CustomerRepository;
 import com.example.ecommercebackofficeproject.order.dto.request.GetOrderRequestParamDto;
 import com.example.ecommercebackofficeproject.order.dto.request.CreateOrderRequestDto;
+import com.example.ecommercebackofficeproject.order.dto.request.UpdateOrderRequestDto;
 import com.example.ecommercebackofficeproject.order.dto.response.*;
 import com.example.ecommercebackofficeproject.order.entity.Order;
 import com.example.ecommercebackofficeproject.order.repository.OrderRepository;
+import com.example.ecommercebackofficeproject.order.type.OrderStatus;
 import com.example.ecommercebackofficeproject.product.entity.Product;
 import com.example.ecommercebackofficeproject.product.repository.ProductRepository;
 import com.example.ecommercebackofficeproject.product.type.ProductStatus;
@@ -167,6 +170,24 @@ public class OrderService {
         return GetListOrderResponseDto.builder()
                 .itemList(itemLists)
                 .pageResponse(pageResponse)
+                .build();
+    }
+
+    @Transactional
+    public UpdateOrderResponseDto updateOrder(Long adminId, Long orderId, UpdateOrderRequestDto request) {
+        Order order = orderRepository.findById(orderId).orElseThrow(
+                () -> new IllegalStateException("나중에 처리 예정") // custom exception
+        );
+
+        if (!order.getOrderStatus().canChangeTo(request.getOrderStatus())) {
+            throw new IllegalArgumentException("나중에 처리 예정"); // custom exception
+        }
+
+        order.changeOrderStatus(request.getOrderStatus());
+        return UpdateOrderResponseDto.builder()
+                .id(order.getId())
+                .orderStatus(order.getOrderStatus())
+                .updatedAt(order.getUpdatedAt())
                 .build();
     }
 
