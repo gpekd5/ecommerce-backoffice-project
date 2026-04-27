@@ -2,7 +2,6 @@ package com.example.ecommercebackofficeproject.product.service;
 
 import com.example.ecommercebackofficeproject.admin.entity.Admin;
 import com.example.ecommercebackofficeproject.admin.repository.AdminRepository;
-import com.example.ecommercebackofficeproject.auth.dto.SessionAdminDto;
 import com.example.ecommercebackofficeproject.product.dto.request.ProductRequestDto;
 import com.example.ecommercebackofficeproject.product.dto.response.CreateProductResponseDto;
 import com.example.ecommercebackofficeproject.product.dto.response.GetProductPageResponseDto;
@@ -44,7 +43,6 @@ public class ProductService {
         return new CreateProductResponseDto(productRepository.save(dto.toEntity(admin)));
     }
 
-
     /**
      * 상품 전체 조회 및 검색
      * @param keyword  검색어
@@ -65,7 +63,13 @@ public class ProductService {
      */
     @Transactional(readOnly = true)
     public GetProductResponseDto getProduct(Long productId) {
-        return productRepository.findById(productId).map(GetProductResponseDto::new).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 상품입니다."));
+        Product product = productRepository.findById(productId).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 상품입니다."));
+
+        if(product.isDeleted()) {
+            throw new IllegalStateException("삭제된 상품입니다.");
+        }
+
+        return new GetProductResponseDto(product);
     }
 
     /**
@@ -96,5 +100,19 @@ public class ProductService {
         Product product = productRepository.findById(productId).orElseThrow(() -> new IllegalArgumentException("발견된 상품이 없습니다."));
 
         return new GetProductResponseDto(product.updateStatus(dto.getStatus()));
+    }
+
+    /**
+     * 특정 상품을 논리적으로 삭제합니다.
+     * 상품 엔티티의 삭제 상태를 업데이트하여 실제 데이터는 보존하되,
+     * 향후 조회 목록에서는 제외되도록 처리합니다.
+     * @param productId 삭제할 상품의 고유 식별자(ID)
+     * @throws IllegalArgumentException 해당 ID를 가진 상품이 DB에 존재하지 않을 경우 발생
+     */
+    @Transactional
+    public void deleteProduct(Long productId) {
+        Product product = productRepository.findById(productId).orElseThrow(() -> new IllegalArgumentException("발견된 상품이 없습니다."));
+
+        product.delete();
     }
 }
