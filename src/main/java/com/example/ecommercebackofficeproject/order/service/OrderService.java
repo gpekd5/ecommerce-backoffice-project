@@ -1,23 +1,29 @@
 package com.example.ecommercebackofficeproject.order.service;
 
+import com.example.ecommercebackofficeproject.admin.entity.Admin;
 import com.example.ecommercebackofficeproject.admin.repository.AdminRepository;
 import com.example.ecommercebackofficeproject.customer.entity.Customer;
 import com.example.ecommercebackofficeproject.customer.repository.CustomerRepository;
+import com.example.ecommercebackofficeproject.order.dto.request.GetOrderRequestParamDto;
 import com.example.ecommercebackofficeproject.order.dto.request.CreateOrderRequestDto;
-import com.example.ecommercebackofficeproject.order.dto.response.CreateOrderResponseDto;
-import com.example.ecommercebackofficeproject.order.dto.response.GetOneOrderResponseDto;
+import com.example.ecommercebackofficeproject.order.dto.response.*;
 import com.example.ecommercebackofficeproject.order.entity.Order;
 import com.example.ecommercebackofficeproject.order.repository.OrderRepository;
 import com.example.ecommercebackofficeproject.product.entity.Product;
 import com.example.ecommercebackofficeproject.product.repository.ProductRepository;
 import com.example.ecommercebackofficeproject.product.type.ProductStatus;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -27,10 +33,18 @@ public class OrderService {
     private final CustomerRepository customerRepository;
     private final AdminRepository adminRepository;
 
+    /**
+     * 주문을 생성하는 메서드 입니다.
+     *
+     */
+
     @Transactional
     public CreateOrderResponseDto createOrder(Long adminId, CreateOrderRequestDto request) {
         // todo - 단종 / 품절 / 재고 부족 / 고객 없음 / 상품 없음 / 403 처리
 
+        Admin admin = adminRepository.findById(adminId).orElseThrow(
+                () -> new IllegalStateException("adf") // 추후 추가 예정
+        );
         // todo - 403 처리
         Product product = productRepository.findById(request.getProductId()).orElseThrow(
                 () -> new IllegalStateException("상품을 찾을 수 없습니다.") // todo - 상품 없음 에러 처리
@@ -53,7 +67,7 @@ public class OrderService {
                 .customer(customer)
                 .product(product)
                 .quantity(request.getQuantity())
-                .createdByAdminId(adminId)
+                .admin(admin)
                 .build();
 
         // todo - 상품 재고 update
@@ -69,23 +83,99 @@ public class OrderService {
                 .totalPrice(order.getTotalPrice())
                 .orderStatus(order.getOrderStatus())
                 .orderedAt(order.getCreatedAt())
-                .createdByAdminId(order.getCreatedByAdminId())
+                .createdByAdminId(order.getAdmin().getId())
                 .build();
     }
 
-//    @Transactional
-//    public GetOneOrderResponseDto getOneOrder(Long adminId, Long orderId) {
-//        // todo - 주문 404 / 403
-//        Order order = orderRepository.findById(orderId).orElseThrow(
-//                () -> new IllegalStateException("주문을 찾을 수 없습니다.") // todo - 주문 404 에러 처리
-//        );
-//
-//
-//
-//    }
+    /**
+     * 특정 주문을 조회하는 메서드입니다.
+     *
+     */
+
+    @Transactional(readOnly = true)
+    public GetOneOrderResponseDto getOneOrder(Long adminId, Long orderId) {
+        // todo - 주문 404 / 403
+        Order order = orderRepository.findById(orderId).orElseThrow(
+                () -> new IllegalStateException("주문을 찾을 수 없습니다.") // todo - 주문 404 에러 처리
+        );
+
+        return GetOneOrderResponseDto.builder()
+                .id(order.getId())
+                .orderNumber(order.getOrderNumber())
+                .customerName(order.getCustomer().getName())
+                .customerEmail(order.getCustomer().getEmail())
+                .productName(order.getProduct().getProductName())
+                .quantity(order.getQuantity())
+                .totalPrice(order.getTotalPrice())
+                .orderStatus(order.getOrderStatus())
+                .createdByAdminName(order.getAdmin().getName())
+                .createdByAdminEmail(order.getAdmin().getEmail())
+                .createdByAdminRole(order.getAdmin().getRole())
+                .orderedAt(order.getCreatedAt())
+                .build();
+
+    }
+
+    @Transactional(readOnly = true)
+    public GetListOrderResponseDto getListOrder(Long adminId, GetOrderRequestParamDto request) {
+        // 1. 키워드 ("" -> null)
+        String keyword = request.getKeyword();
+        if (keyword != null && keyword.isBlank()) {
+            keyword = null;
+        }
+
+        // page & size 처리
+        int page = request.getPage() != null ? request.getPage() : 1;
+        int size = request.getSize() != null ? request.getSize() : 10;
 
 
-    // 주문번호 생성 메서드 (ex. 20260424-001)
+        // 정렬 처리
+        String sortBy = request.getSortBy() != null ? request.getSortBy() : "orderedAt";
+        String sortDirection = request.getSortDirection() != null ? request.getSortDirection() : "DESC";
+
+        Sort.Direction direction = Sort.Direction.fromString(sortDirection);
+        Pageable pageable = PageRequest.of(page - 1, size, Sort.by(direction, sortBy));
+
+        // 조회
+        Page<Order> orderPage = orderRepository.searchOrders(
+                keyword,
+                request.getOrderStatus(),
+                pageable
+        );
+
+        // DTO 변환
+        List<GetListOrderItemResponseDto> itemLists = orderPage.getContent().stream()
+                .map(order -> GetListOrderItemResponseDto.builder()
+                        .id(order.getId())
+                        .customerName(order.getCustomer().getName())
+                        .productName(order.getProduct().getProductName())
+                        .quantity(order.getQuantity())
+                        .totalPrice(order.getTotalPrice())
+                        .orderedAt(order.getCreatedAt())
+                        .orderStatus(order.getOrderStatus())
+                        .createdByAdminName(order.getAdmin().getName())
+                        .build()
+                ).toList();
+
+        PageResponseDto pageResponse = PageResponseDto.builder()
+                .currentPage(page)
+                .size(orderPage.getSize())
+                .totalElements(orderPage.getTotalElements())
+                .totalPages(orderPage.getTotalPages())
+                .build();
+
+        return GetListOrderResponseDto.builder()
+                .itemList(itemLists)
+                .pageResponse(pageResponse)
+                .build();
+    }
+
+
+    /**
+     * 주문 번호를 생성하는 메서드 입니다.
+     * 생성 예시 : 20260424-001
+     *
+     */
     private String createOrderNumber() {
         LocalDate today = LocalDate.now();
 
