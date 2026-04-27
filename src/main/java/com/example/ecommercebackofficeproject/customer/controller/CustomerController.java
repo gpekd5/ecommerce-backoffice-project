@@ -1,10 +1,12 @@
 package com.example.ecommercebackofficeproject.customer.controller;
 
 import com.example.ecommercebackofficeproject.customer.dto.request.UpdateCustomerRequestDto;
+import com.example.ecommercebackofficeproject.customer.dto.request.UpdateCustomerStatusRequestDto;
 import com.example.ecommercebackofficeproject.customer.dto.response.GetCustomerDetailResponseDto;
 import com.example.ecommercebackofficeproject.customer.dto.response.GetCustomerPageResponseDto;
 import com.example.ecommercebackofficeproject.customer.dto.request.GetCustomerRequestDto;
 import com.example.ecommercebackofficeproject.customer.dto.response.UpdateCustomerResponseDto;
+import com.example.ecommercebackofficeproject.customer.dto.response.UpdateCustomerStatusResponseDto;
 import com.example.ecommercebackofficeproject.customer.service.CustomerService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -44,5 +46,15 @@ public class CustomerController {
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(customerService.updateCustomer(customerId, request));
+    }
+
+    @PatchMapping("/customers/{customerId}/status")
+    public ResponseEntity<UpdateCustomerStatusResponseDto> updateCustomerStatus(
+            @PathVariable Long customerId,
+            @Valid @RequestBody UpdateCustomerStatusRequestDto request
+    ) {
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(customerService.updateCustomerStatus(customerId, request));
     }
 }

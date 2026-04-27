@@ -1,11 +1,9 @@
 package com.example.ecommercebackofficeproject.customer.service;
 
 import com.example.ecommercebackofficeproject.customer.dto.request.UpdateCustomerRequestDto;
-import com.example.ecommercebackofficeproject.customer.dto.response.GetCustomerDetailResponseDto;
-import com.example.ecommercebackofficeproject.customer.dto.response.GetCustomerPageResponseDto;
+import com.example.ecommercebackofficeproject.customer.dto.request.UpdateCustomerStatusRequestDto;
+import com.example.ecommercebackofficeproject.customer.dto.response.*;
 import com.example.ecommercebackofficeproject.customer.dto.request.GetCustomerRequestDto;
-import com.example.ecommercebackofficeproject.customer.dto.response.GetCustomerResponseDto;
-import com.example.ecommercebackofficeproject.customer.dto.response.UpdateCustomerResponseDto;
 import com.example.ecommercebackofficeproject.customer.entity.Customer;
 import com.example.ecommercebackofficeproject.customer.repository.CustomerRepository;
 import com.example.ecommercebackofficeproject.customer.type.CustomerStatus;
@@ -185,5 +183,24 @@ public class CustomerService {
         );
 
         return UpdateCustomerResponseDto.from(customer);
+    }
+
+    @Transactional
+    public UpdateCustomerStatusResponseDto updateCustomerStatus(
+            Long customerId,
+            UpdateCustomerStatusRequestDto request
+    ) {
+        Customer customer = customerRepository.findByIdAndDeletedAtIsNull(customerId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 고객입니다."));
+
+        CustomerStatus newStatus = parseStatus(request.getStatus());
+
+        if (newStatus == null) {
+            throw new IllegalArgumentException("유효하지 않은 상태입니다.");
+        }
+
+        customer.changeStatus(newStatus);
+
+        return UpdateCustomerStatusResponseDto.from(customer);
     }
 }
