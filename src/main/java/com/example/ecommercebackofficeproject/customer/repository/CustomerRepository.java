@@ -1,6 +1,7 @@
 package com.example.ecommercebackofficeproject.customer.repository;
 
 import com.example.ecommercebackofficeproject.customer.entity.Customer;
+import com.example.ecommercebackofficeproject.customer.type.CustomerStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
@@ -81,4 +82,6 @@ public interface CustomerRepository extends JpaRepository<Customer, Long>, JpaSp
     boolean existsByEmailAndIdNot(String email, Long id);
 
     boolean existsByPhoneAndIdNot(String phone, Long id);
+
+    Long countByStatus(CustomerStatus customerStatus);
 }

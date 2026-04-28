@@ -8,7 +8,6 @@ import com.example.ecommercebackofficeproject.admin.type.AdminStatus;
 import com.example.ecommercebackofficeproject.auth.dto.SessionAdminDto;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
@@ -107,6 +106,17 @@ public class AdminController {
                 .body(adminService.findById(sessionAdmin, id));
     }
 
+    /**
+     * 관리자 정보 수정 API.
+     *
+     * 경로 변수로 전달받은 관리자 ID 기준 관리자 정보를 수정.
+     * 이름, 이메일, 전화번호 정보를 수정하며, 권한 검증은 서비스 계층에서 처리.
+     *
+     * @param sessionAdmin 세션에 저장된 로그인 관리자 정보
+     * @param id 수정할 관리자 ID
+     * @param request 관리자 정보 수정 요청 DTO
+     * @return 관리자 정보 수정 응답 DTO
+     */
     @PatchMapping("/{id}")
     public ResponseEntity<UpdateAdminResponseDto> updateAdminInfo(
             @SessionAttribute(name = "loginUser") SessionAdminDto sessionAdmin,
@@ -116,6 +126,17 @@ public class AdminController {
         return ResponseEntity.status(HttpStatus.OK).body(adminService.updateAdminInfo(sessionAdmin, id, request));
     }
 
+    /**
+     * 관리자 역할 수정 API.
+     *
+     * 경로 변수로 전달받은 관리자 ID 기준 관리자 역할을 수정.
+     * 권한 검증은 서비스 계층에서 처리.
+     *
+     * @param sessionAdmin 세션에 저장된 로그인 관리자 정보
+     * @param id 역할을 수정할 관리자 ID
+     * @param request 관리자 역할 수정 요청 DTO
+     * @return 관리자 역할 수정 응답 DTO
+     */
     @PatchMapping("/{id}/role")
     public ResponseEntity<UpdateAdminRoleResponseDto> updateAdminRole(
             @SessionAttribute(name = "loginUser") SessionAdminDto sessionAdmin,
@@ -125,6 +146,17 @@ public class AdminController {
         return ResponseEntity.status(HttpStatus.OK).body(adminService.updateAdminRole(sessionAdmin, id, request));
     }
 
+    /**
+     * 관리자 상태 수정 API.
+     *
+     * 경로 변수로 전달받은 관리자 ID 기준 관리자 상태를 수정.
+     * 권한 검증은 서비스 계층에서 처리.
+     *
+     * @param sessionAdmin 세션에 저장된 로그인 관리자 정보
+     * @param id 상태를 수정할 관리자 ID
+     * @param request 관리자 상태 수정 요청 DTO
+     * @return 관리자 상태 수정 응답 DTO
+     */
     @PatchMapping("/{id}/status")
         public ResponseEntity<UpdateAdminStatusResponseDto> updateAdminStatus(
             @SessionAttribute(name = "loginUser") SessionAdminDto sessionAdmin,
@@ -134,6 +166,16 @@ public class AdminController {
         return ResponseEntity.status(HttpStatus.OK).body(adminService.updateAdminStatus(sessionAdmin, id, request));
     }
 
+    /**
+     * 관리자 승인 API.
+     *
+     * 경로 변수로 전달받은 관리자 ID 기준 승인 대기 상태의 관리자를 승인 처리.
+     * 권한 검증 및 승인 가능 상태 검증은 서비스 계층에서 처리.
+     *
+     * @param sessionAdmin 세션에 저장된 로그인 관리자 정보
+     * @param id 승인할 관리자 ID
+     * @return 관리자 승인 응답 DTO
+     */
     @PatchMapping("/{id}/approve")
     public ResponseEntity<UpdateAdminApproveResponseDto> approve(
             @SessionAttribute(name = "loginUser") SessionAdminDto sessionAdmin,
@@ -142,6 +184,17 @@ public class AdminController {
         return ResponseEntity.status(HttpStatus.OK).body(adminService.approve(sessionAdmin, id));
     }
 
+    /**
+     * 관리자 승인 거부 API.
+     *
+     * 경로 변수로 전달받은 관리자 ID 기준 승인 대기 상태의 관리자를 거부 처리.
+     * 거부 사유는 요청 본문으로 전달받으며, 권한 검증 및 거부 가능 상태 검증은 서비스 계층에서 처리.
+     *
+     * @param sessionAdmin 세션에 저장된 로그인 관리자 정보
+     * @param id 승인 거부할 관리자 ID
+     * @param request 관리자 승인 거부 요청 DTO
+     * @return 관리자 승인 거부 응답 DTO
+     */
     @PatchMapping("/{id}/reject")
     public ResponseEntity<UpdateAdminRejectResponseDto> reject(
             @SessionAttribute(name = "loginUser") SessionAdminDto sessionAdmin,
@@ -151,6 +204,16 @@ public class AdminController {
         return ResponseEntity.status(HttpStatus.OK).body(adminService.reject(sessionAdmin, id, request));
     }
 
+    /**
+     * 관리자 삭제 API.
+     *
+     * 경로 변수로 전달받은 관리자 ID 기준 관리자 계정을 소프트 삭제 처리.
+     * 권한 검증은 서비스 계층에서 처리.
+     *
+     * @param sessionAdmin 세션에 저장된 로그인 관리자 정보
+     * @param id 삭제할 관리자 ID
+     * @return 응답 본문 없음
+     */
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> delete(
             @SessionAttribute(name = "loginUser") SessionAdminDto sessionAdmin,
@@ -158,6 +221,56 @@ public class AdminController {
     ) {
         adminService.delete(sessionAdmin, id);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
+    /**
+     * 내 프로필 조회 API.
+     *
+     * 세션에 저장된 로그인 관리자 정보를 기준으로 내 프로필 정보 조회.
+     *
+     * @param sessionAdmin 세션에 저장된 로그인 관리자 정보
+     * @return 내 프로필 조회 응답 DTO
+     */
+    @GetMapping("/me")
+    public ResponseEntity<MeProfileResponseDto> getProfile(@SessionAttribute(name = "loginUser") SessionAdminDto sessionAdmin) {
+        return ResponseEntity.status(HttpStatus.OK).body(adminService.getProfile(sessionAdmin));
+    }
+
+    /**
+     * 내 프로필 수정 API.
+     *
+     * 세션에 저장된 로그인 관리자 정보를 기준으로 내 프로필 정보를 수정.
+     * 이름, 이메일, 전화번호 정보를 수정.
+     *
+     * @param sessionAdmin 세션에 저장된 로그인 관리자 정보
+     * @param request 내 프로필 수정 요청 DTO
+     * @return 내 프로필 수정 응답 DTO
+     */
+    @PatchMapping("/me")
+    public ResponseEntity<MeProfileResponseDto> updateProfile(
+            @SessionAttribute(name = "loginUser") SessionAdminDto sessionAdmin,
+            @Valid @RequestBody UpdateAdminRequestDto request
+    ) {
+        return ResponseEntity.status(HttpStatus.OK).body(adminService.updateProfile(sessionAdmin, request));
+    }
+
+    /**
+     * 내 비밀번호 변경 API.
+     *
+     * 세션에 저장된 로그인 관리자 정보를 기준으로 비밀번호를 변경.
+     * 현재 비밀번호 검증, 새 비밀번호 확인값 검증, 새 비밀번호 암호화 저장은 서비스 계층에서 처리.
+     *
+     * @param sessionAdminDto 세션에 저장된 로그인 관리자 정보
+     * @param request 비밀번호 변경 요청 DTO
+     * @return 응답 본문 없음
+     */
+    @PatchMapping("/me/password")
+    public ResponseEntity<Void> updatePassword(
+            @SessionAttribute(name = "loginUser") SessionAdminDto sessionAdminDto,
+            @Valid @RequestBody UpdatePasswordRequestDto request
+    ) {
+        adminService.updatePassword(sessionAdminDto, request);
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 
 }

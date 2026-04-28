@@ -128,6 +128,15 @@ public class Admin extends BaseEntity {
         this.status = status;
     }
 
+    /**
+     * 관리자 기본 정보 수정.
+     *
+     * null이 아닌 값만 수정.
+     *
+     * @param name 수정할 관리자 이름
+     * @param email 수정할 관리자 이메일
+     * @param phone 수정할 관리자 전화번호
+     */
     public void updateInfo(String name, String email, String phone) {
         if (name != null) {
             this.name = name;
@@ -142,23 +151,58 @@ public class Admin extends BaseEntity {
         }
     }
 
+    /**
+     * 관리자 역할 수정.
+     *
+     * @param role 변경할 관리자 역할
+     */
     public void updateRole(AdminRole role) {
         this.role = role;
     }
 
+    /**
+     * 관리자 상태 수정.
+     *
+     * @param status 변경할 관리자 상태
+     */
     public void updateStatus(AdminStatus status) {
         this.status = status;
     }
 
+    /**
+     * 관리자 승인 처리.
+     *
+     * 관리자 상태를 활성 상태로 변경하고 승인일시 저장.
+     * 기존 거절 정보는 초기화.
+     */
     public void approve() {
         this.status = AdminStatus.ACTIVE;
         this.approvedAt = LocalDateTime.now();
     }
 
+    /**
+     * 관리자 승인 거절 처리.
+     *
+     * 관리자 상태를 거절 상태로 변경하고 거절일시 및 거절 사유 저장.
+     * 기존 승인일시는 초기화.
+     *
+     * @param rejectReason 승인 거절 사유
+     */
     public void reject(String rejectReason) {
         this.status = AdminStatus.REJECTED;
         this.rejectReason = rejectReason;
         this.rejectedAt = LocalDateTime.now();
+    }
+
+    /**
+     * 관리자 비밀번호 수정.
+     *
+     * 암호화된 새 비밀번호 저장.
+     *
+     * @param encodedPassword 암호화된 새 비밀번호
+     */
+    public void updatePassword(String encodedPassword) {
+        this.password = encodedPassword;
     }
 
 }
