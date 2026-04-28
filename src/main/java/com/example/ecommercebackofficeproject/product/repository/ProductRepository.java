@@ -39,4 +39,6 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
             "(:status IS NULL OR p.status = :status) AND " +
             "(p.deletedAt IS NULL)")
     Page<Product> findAllWithFilters(@Param("keyword") String keyword, @Param("category") ProductCategory category, @Param("status") ProductStatus status, Pageable pageable);
+
+    Long countByStockLessThanEqual(Integer stock);
 }
