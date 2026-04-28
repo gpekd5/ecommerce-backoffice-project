@@ -6,6 +6,8 @@ import com.example.ecommercebackofficeproject.product.dto.response.CreateProduct
 import com.example.ecommercebackofficeproject.product.dto.response.GetProductPageResponseDto;
 import com.example.ecommercebackofficeproject.product.dto.response.GetProductResponseDto;
 import com.example.ecommercebackofficeproject.product.service.ProductService;
+import com.example.ecommercebackofficeproject.product.type.ProductCategory;
+import com.example.ecommercebackofficeproject.product.type.ProductStatus;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -47,7 +49,7 @@ public class ProductController {
      * @return 페이징 처리된 상품 응답 DTO 목록을 담은 ResponseEntity
      */
     @GetMapping("/products")
-    public ResponseEntity<Page<GetProductPageResponseDto>> getProductList(@RequestParam(required = false) String keyword, @RequestParam(required = false) String category, @RequestParam(required = false) String status, @PageableDefault(page = 1, size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+    public ResponseEntity<Page<GetProductPageResponseDto>> getProductList(@RequestParam(required = false) String keyword, @RequestParam(required = false) ProductCategory category, @RequestParam(required = false) ProductStatus status, @PageableDefault(page = 1, size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
         return ResponseEntity.ok(productService.getProductList(keyword, category, status, pageable));
     }
 
@@ -80,7 +82,7 @@ public class ProductController {
      * @param sessionAdmin 세션에서 가져온 관리자 정보 (수정 권한 확인용)  해당 로직을 글로벌로 구현 할지 고민중
      * @return 상태 변경이 완료된 상품의 상세 정보 DTO
      */
-    @PatchMapping("/products/{productId}")
+    @PatchMapping("/products/{productId}/status")
     public ResponseEntity<GetProductResponseDto> updateProductStatus(@PathVariable Long productId, @Valid @RequestBody ProductRequestDto dto, @SessionAttribute(name="loginUser") SessionAdminDto sessionAdmin) {
         return ResponseEntity.ok(productService.updateProductStatus(productId, dto));
     }
