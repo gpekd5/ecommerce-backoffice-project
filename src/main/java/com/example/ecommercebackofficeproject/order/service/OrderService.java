@@ -2,16 +2,15 @@ package com.example.ecommercebackofficeproject.order.service;
 
 import com.example.ecommercebackofficeproject.admin.entity.Admin;
 import com.example.ecommercebackofficeproject.admin.repository.AdminRepository;
-import com.example.ecommercebackofficeproject.auth.dto.SessionAdminDto;
 import com.example.ecommercebackofficeproject.customer.entity.Customer;
 import com.example.ecommercebackofficeproject.customer.repository.CustomerRepository;
+import com.example.ecommercebackofficeproject.order.dto.request.CancelOrderRequestDto;
 import com.example.ecommercebackofficeproject.order.dto.request.GetOrderRequestParamDto;
 import com.example.ecommercebackofficeproject.order.dto.request.CreateOrderRequestDto;
 import com.example.ecommercebackofficeproject.order.dto.request.UpdateOrderRequestDto;
 import com.example.ecommercebackofficeproject.order.dto.response.*;
 import com.example.ecommercebackofficeproject.order.entity.Order;
 import com.example.ecommercebackofficeproject.order.repository.OrderRepository;
-import com.example.ecommercebackofficeproject.order.type.OrderStatus;
 import com.example.ecommercebackofficeproject.product.entity.Product;
 import com.example.ecommercebackofficeproject.product.repository.ProductRepository;
 import com.example.ecommercebackofficeproject.product.type.ProductStatus;
@@ -37,18 +36,24 @@ public class OrderService {
     private final AdminRepository adminRepository;
 
     /**
-     * 주문을 생성하는 메서드 입니다.
+     * 주문 생성 API
      *
+     * 주문을 생성하는 메서드입니다.
+     * - 관리자, 상품, 고객 존재 여부를 검증합니다.
+     * - 상품 상태(단종, 품절) 및 재고를 확인합니다.
+     * - 주문 번호를 생성하고 주문을 저장합니다.
+     *
+     * @param adminId 로그인한 관리자 ID
+     * @param request 주문 생성 요청 데이터 (상품 ID, 고객 ID, 수량 등)
+     * @return 생성된 주문 정보
      */
-
     @Transactional
     public CreateOrderResponseDto createOrder(Long adminId, CreateOrderRequestDto request) {
         // todo - 단종 / 품절 / 재고 부족 / 고객 없음 / 상품 없음 / 403 처리
-
-        Admin admin = adminRepository.findById(adminId).orElseThrow(
-                () -> new IllegalStateException("adf") // 추후 추가 예정
-        );
         // todo - 403 처리
+        Admin admin = adminRepository.findById(adminId).orElseThrow(
+                () -> new IllegalStateException("로그인한 관리자를 찾을 수 없습니다.")
+        );
         Product product = productRepository.findById(request.getProductId()).orElseThrow(
                 () -> new IllegalStateException("상품을 찾을 수 없습니다.") // todo - 상품 없음 에러 처리
         );
@@ -63,7 +68,6 @@ public class OrderService {
         if (request.getQuantity() > product.getStock()) {
             throw new IllegalArgumentException("상품 재고가 부족합니다."); // todo - 재고 부족 에러 처리
         }
-
 
         Order order = Order.builder()
                 .orderNumber(createOrderNumber())
@@ -91,13 +95,23 @@ public class OrderService {
     }
 
     /**
-     * 특정 주문을 조회하는 메서드입니다.
+     * 특정 주문 단건 조회 API
      *
+     * 주문 ID를 기반으로 주문 상세 정보를 조회합니다.
+     * - 관리자 존재 여부 검증
+     * - 주문 존재 여부 검증
+     *
+     * @param adminId 로그인한 관리자 ID
+     * @param orderId 조회할 주문 ID
+     * @return 주문 상세 정보
      */
-
     @Transactional(readOnly = true)
     public GetOneOrderResponseDto getOneOrder(Long adminId, Long orderId) {
         // todo - 주문 404 / 403
+        Admin admin = adminRepository.findById(adminId).orElseThrow(
+                () -> new IllegalStateException("로그인한 관리자를 찾을 수 없습니다.")
+        );
+
         Order order = orderRepository.findById(orderId).orElseThrow(
                 () -> new IllegalStateException("주문을 찾을 수 없습니다.") // todo - 주문 404 에러 처리
         );
@@ -119,8 +133,19 @@ public class OrderService {
 
     }
 
+    /**
+     * 주문 목록 조회 API
+     *
+     * 주문 목록을 조회하는 메서드입니다.
+     * - 키워드 검색 (고객명, 상품명 등)
+     * - 주문 상태 필터링
+     * - 페이징 및 정렬 처리
+     *
+     * @param request 주문 조회 조건 (키워드, 상태, 페이지, 정렬 등)
+     * @return 주문 목록 및 페이지 정보
+     */
     @Transactional(readOnly = true)
-    public GetListOrderResponseDto getListOrder(Long adminId, GetOrderRequestParamDto request) {
+    public GetListOrderResponseDto getListOrder(GetOrderRequestParamDto request) {
         // 1. 키워드 ("" -> null)
         String keyword = request.getKeyword();
         if (keyword != null && keyword.isBlank()) {
@@ -173,14 +198,22 @@ public class OrderService {
                 .build();
     }
 
+    /**
+     * 주문 상태 변경 API
+     * 주문의 상태를 변경하는 메서드입니다.
+     * - 현재 상태에서 변경 가능한 상태인지 검증합니다.
+     *
+     * @param orderId 상태를 변경할 주문 ID
+     * @param request 변경할 주문 상태 정보
+     * @return 변경된 주문 상태 정보
+     */
     @Transactional
-    public UpdateOrderResponseDto updateOrder(Long adminId, Long orderId, UpdateOrderRequestDto request) {
+    public UpdateOrderResponseDto updateOrder(Long orderId, UpdateOrderRequestDto request) {
         Order order = orderRepository.findById(orderId).orElseThrow(
-                () -> new IllegalStateException("나중에 처리 예정") // custom exception
+                () -> new IllegalStateException("주문을 찾을 수 없습니다.") // todo - custom exception
         );
-
         if (!order.getOrderStatus().canChangeTo(request.getOrderStatus())) {
-            throw new IllegalArgumentException("나중에 처리 예정"); // custom exception
+            throw new IllegalArgumentException("현재 상태에서는 해당 상태로 변경할 수 없습니다."); // todo - custom exception
         }
 
         order.changeOrderStatus(request.getOrderStatus());
@@ -191,11 +224,46 @@ public class OrderService {
                 .build();
     }
 
+    /**
+     * 주문 취소 API
+     *
+     * 주문을 취소하고 취소 사유를 저장합니다.
+     * - 주문 상태를 취소 상태로 변경합니다.
+     * - 재고 복구 로직이 포함될 수 있습니다.
+     *
+     * @param orderId 취소할 주문 ID
+     * @param request 주문 취소 요청 데이터 (취소 사유)
+     * @return 취소된 주문 정보 및 재고 복구 결과
+     */
+    @Transactional
+    public CancelOrderResponseDto cancelOrder(Long orderId, CancelOrderRequestDto request) {
+        Order order = orderRepository.findById(orderId).orElseThrow(
+                () -> new IllegalStateException("나중에 처리 예정") // todo - custom exception
+        );
+        order.cancel(request.getOrderCancelReason());
+        // todo - 재고 복구 method
+
+        return CancelOrderResponseDto.builder()
+                .id(order.getId())
+                .orderNumber(order.getOrderNumber())
+                .orderStatus(order.getOrderStatus())
+                .cancelReason(order.getOrderCancelReason())
+                .canceledAt(order.getDeletedAt())
+                .productId(order.getProduct().getProductId())
+                .productName(order.getProduct().getProductName())
+                .restoredQuantity(order.getQuantity())
+                .currentStock(order.getProduct().getStock())
+                .productStatus(order.getProduct().getStatus()).build();
+    }
 
     /**
-     * 주문 번호를 생성하는 메서드 입니다.
-     * 생성 예시 : 20260424-001
+     * 주문 번호 생성 메서드
      *
+     * 현재 날짜 기준으로 주문 번호를 생성합니다.
+     * 형식: yyyyMMdd-XXX (예: 20260424-001)
+     * - 하루 주문 건수를 기반으로 순번을 부여합니다.
+     *
+     * @return 생성된 주문 번호
      */
     private String createOrderNumber() {
         LocalDate today = LocalDate.now();
