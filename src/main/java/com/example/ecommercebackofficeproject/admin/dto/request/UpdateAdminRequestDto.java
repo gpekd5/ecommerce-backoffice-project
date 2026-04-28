@@ -13,7 +13,6 @@ public class UpdateAdminRequestDto {
      *
      * 최대 30자 제한.
      */
-    @NotBlank(message = "이름은 필수입니다.")
     @Size(max = 30, message = "이름은 30자 이하로 입력해주세요.")
     private final String name;
 
@@ -22,7 +21,6 @@ public class UpdateAdminRequestDto {
      *
      * 이메일 형식 검증 및 최대 100자 제한.
      */
-    @NotBlank(message = "이메일은 필수입니다.")
     @Email(message = "올바른 이메일 형식이 아닙니다.")
     @Size(max = 100, message = "이메일은 100자 이하로 입력해주세요.")
     private final String email;
@@ -32,7 +30,6 @@ public class UpdateAdminRequestDto {
      *
      * 010-0000-0000 형식 검증.
      */
-    @NotBlank(message = "전화번호는 필수 입니다.")
     @Pattern(regexp = "^010-\\d{4}-\\d{4}$", message = "전화번호 형식은 010-0000-0000 형식이어야 합니다.")
     private final String phone;
 

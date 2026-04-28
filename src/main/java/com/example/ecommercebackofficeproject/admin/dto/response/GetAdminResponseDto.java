@@ -58,6 +58,16 @@ public class GetAdminResponseDto {
     private final LocalDateTime approvedAt;
 
     /**
+     * 관리자 거부일시.
+     */
+    private final LocalDateTime rejectAt;
+
+    /**
+     * 관리자 거부사유.
+     */
+    private final String rejectReason;
+
+    /**
      * 관리자 단건 조회 응답 DTO 생성자.
      *
      * @param id 관리자 ID
@@ -71,7 +81,7 @@ public class GetAdminResponseDto {
      */
     public GetAdminResponseDto(
             Long id, String email, String name, String phone, String role, String status,
-            LocalDateTime createdAt, LocalDateTime approvedAt
+            LocalDateTime createdAt, LocalDateTime approvedAt, LocalDateTime rejectAt, String rejectReason
     ) {
         this.id = id;
         this.email = email;
@@ -81,6 +91,8 @@ public class GetAdminResponseDto {
         this.status = status;
         this.createdAt = createdAt;
         this.approvedAt = approvedAt;
+        this.rejectAt = rejectAt;
+        this.rejectReason = rejectReason;
     }
 
     /**
@@ -98,7 +110,9 @@ public class GetAdminResponseDto {
                 admin.getRole().getDescription(),
                 admin.getStatus().getDescription(),
                 admin.getCreatedAt(),
-                admin.getApprovedAt()
+                admin.getApprovedAt(),
+                admin.getRejectedAt(),
+                admin.getRejectReason()
         );
     }
 }
