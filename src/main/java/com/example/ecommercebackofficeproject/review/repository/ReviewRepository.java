@@ -37,4 +37,7 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
             "AND (:rating IS NULL OR r.rating = :rating) AND " +
             "(r.deletedAt IS NULL)")
     Page<Review> findAllWithFilters(@Param("keyword") String keyword, @Param("rating") int rating, Pageable pageable);
+
+    @Query("select avg(r.rating) from Review r")
+    Double findAverageRating();
 }
