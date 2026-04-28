@@ -11,7 +11,6 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
 
 @Getter
 @Entity
@@ -44,7 +43,7 @@ public class Order extends BaseEntity {
     private OrderStatus orderStatus;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "admin_id", nullable = false)
+    @JoinColumn(name = "admin_id", nullable = true)
     private Admin admin;
 
     private String orderCancelReason;
@@ -71,7 +70,6 @@ public class Order extends BaseEntity {
         }
         this.orderStatus = OrderStatus.CANCELED;
         this.orderCancelReason = reason;
-        this.delete();
     }
 
 }
