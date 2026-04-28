@@ -161,4 +161,8 @@ public class Admin extends BaseEntity {
         this.rejectedAt = LocalDateTime.now();
     }
 
+    public void updatePassword(String password) {
+        this.password = password;
+    }
+
 }

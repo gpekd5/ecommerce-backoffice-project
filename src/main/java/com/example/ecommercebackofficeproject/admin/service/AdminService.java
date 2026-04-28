@@ -116,6 +116,17 @@ public class AdminService {
         return GetAdminResponseDto.from(admin);
     }
 
+    /**
+     * 관리자 정보 수정.
+     *
+     * 슈퍼 관리자 권한 검증 후 관리자 ID 기준으로 관리자 정보를 조회하고,
+     * 이름, 이메일, 전화번호 정보를 수정.
+     *
+     * @param sessionAdmin 세션에 저장된 로그인 관리자 정보
+     * @param adminId 수정할 관리자 ID
+     * @param request 관리자 정보 수정 요청 DTO
+     * @return 관리자 정보 수정 응답 DTO
+     */
     @Transactional
     public UpdateAdminResponseDto updateAdminInfo(SessionAdminDto sessionAdmin, Long adminId, UpdateAdminRequestDto request) {
         validateSuperAdmin(sessionAdmin);
@@ -129,6 +140,17 @@ public class AdminService {
         return UpdateAdminResponseDto.from(admin);
     }
 
+    /**
+     * 관리자 역할 수정.
+     *
+     * 슈퍼 관리자 권한 검증 후 관리자 ID 기준으로 관리자 정보를 조회하고,
+     * 요청받은 역할로 관리자 역할 수정.
+     *
+     * @param sessionAdmin 세션에 저장된 로그인 관리자 정보
+     * @param adminId 역할을 수정할 관리자 ID
+     * @param request 관리자 역할 수정 요청 DTO
+     * @return 관리자 역할 수정 응답 DTO
+     */
     @Transactional
     public UpdateAdminRoleResponseDto updateAdminRole(SessionAdminDto sessionAdmin, Long adminId, UpdateAdminRoleRequestDto request) {
         validateSuperAdmin(sessionAdmin);
@@ -142,6 +164,17 @@ public class AdminService {
         return UpdateAdminRoleResponseDto.from(admin);
     }
 
+    /**
+     * 관리자 상태 수정.
+     *
+     * 슈퍼 관리자 권한 검증 후 관리자 ID 기준으로 관리자 정보를 조회하고,
+     * 요청받은 상태로 관리자 상태 수정.
+     *
+     * @param sessionAdmin 세션에 저장된 로그인 관리자 정보
+     * @param adminId 상태를 수정할 관리자 ID
+     * @param request 관리자 상태 수정 요청 DTO
+     * @return 관리자 상태 수정 응답 DTO
+     */
     @Transactional
         public UpdateAdminStatusResponseDto updateAdminStatus(SessionAdminDto sessionAdmin, Long adminId, UpdateAdminStatusRequestDto request) {
         validateSuperAdmin(sessionAdmin);
@@ -155,6 +188,16 @@ public class AdminService {
         return UpdateAdminStatusResponseDto.from(admin);
     }
 
+    /**
+     * 관리자 승인 처리.
+     *
+     * 슈퍼 관리자 권한 검증 후 관리자 ID 기준으로 관리자 정보를 조회하고,
+     * 승인 대기 상태인 관리자만 승인 처리.
+     *
+     * @param sessionAdmin 세션에 저장된 로그인 관리자 정보
+     * @param adminId 승인할 관리자 ID
+     * @return 관리자 승인 응답 DTO
+     */
     @Transactional
     public UpdateAdminApproveResponseDto approve(SessionAdminDto sessionAdmin, Long adminId) {
         validateSuperAdmin(sessionAdmin);
@@ -172,6 +215,18 @@ public class AdminService {
         return UpdateAdminApproveResponseDto.from(admin);
     }
 
+    /**
+     * 관리자 승인 거부 처리.
+     *
+     * 슈퍼 관리자 권한 검증 후 관리자 ID 기준으로 관리자 정보를 조회하고,
+     * 승인 대기 상태인 관리자만 거부 처리.
+     * 거부 처리 시 거부 사유 저장.
+     *
+     * @param sessionAdmin 세션에 저장된 로그인 관리자 정보
+     * @param adminId 승인 거부할 관리자 ID
+     * @param request 관리자 승인 거부 요청 DTO
+     * @return 관리자 승인 거부 응답 DTO
+     */
     @Transactional
     public UpdateAdminRejectResponseDto reject(SessionAdminDto sessionAdmin, Long adminId, UpdateAdminRejectRequestDto request) {
         validateSuperAdmin(sessionAdmin);
@@ -189,6 +244,15 @@ public class AdminService {
         return UpdateAdminRejectResponseDto.from(admin);
     }
 
+    /**
+     * 관리자 삭제 처리.
+     *
+     * 슈퍼 관리자 권한 검증 후 관리자 ID 기준으로 관리자 정보를 조회하고,
+     * 관리자 계정을 소프트 삭제 처리.
+     *
+     * @param sessionAdmin 세션에 저장된 로그인 관리자 정보
+     * @param adminId 삭제할 관리자 ID
+     */
     @Transactional
     public void delete(SessionAdminDto sessionAdmin, Long adminId) {
         validateSuperAdmin(sessionAdmin);
@@ -198,6 +262,76 @@ public class AdminService {
         );
 
         admin.delete();
+    }
+
+    /**
+     * 내 프로필 조회.
+     *
+     * 세션에 저장된 로그인 관리자 ID 기준으로 관리자 정보를 조회하고,
+     * 내 프로필 응답 DTO로 변환.
+     *
+     * @param sessionAdmin 세션에 저장된 로그인 관리자 정보
+     * @return 내 프로필 조회 응답 DTO
+     */
+    @Transactional
+    public MeProfileResponseDto getProfile(SessionAdminDto sessionAdmin) {
+
+        Admin admin = adminRepository.findById(sessionAdmin.getAdminId()).orElseThrow(
+                () -> new IllegalStateException("Profile ID " + sessionAdmin.getAdminId() + "not found.")
+        );
+
+        return MeProfileResponseDto.from(admin);
+    }
+
+    /**
+     * 내 프로필 수정.
+     *
+     * 세션에 저장된 로그인 관리자 ID 기준으로 관리자 정보를 조회하고,
+     * 이름, 이메일, 전화번호 정보를 수정.
+     *
+     * @param sessionAdmin 세션에 저장된 로그인 관리자 정보
+     * @param request 내 프로필 수정 요청 DTO
+     * @return 내 프로필 수정 응답 DTO
+     */
+    @Transactional
+    public MeProfileResponseDto updateProfile(SessionAdminDto sessionAdmin, UpdateAdminRequestDto request) {
+
+        Admin admin = adminRepository.findById(sessionAdmin.getAdminId()).orElseThrow(
+                () -> new IllegalStateException("Profile ID " + sessionAdmin.getAdminId() + "not found.")
+        );
+
+        admin.updateInfo(request.getName(), request.getEmail(), request.getPhone());
+
+        return MeProfileResponseDto.from(admin);
+    }
+
+    /**
+     * 내 비밀번호 변경.
+     *
+     * 세션에 저장된 로그인 관리자 ID 기준으로 관리자 정보를 조회하고,
+     * 현재 비밀번호 일치 여부와 새 비밀번호 확인값 일치 여부 검증 후
+     * 새 비밀번호를 암호화하여 저장.
+     *
+     * @param sessionAdmin 세션에 저장된 로그인 관리자 정보
+     * @param request 비밀번호 변경 요청 DTO
+     */
+    @Transactional
+    public void updatePassword(SessionAdminDto sessionAdmin, UpdatePasswordRequestDto request) {
+
+        Admin admin = adminRepository.findById(sessionAdmin.getAdminId()).orElseThrow(
+                () -> new IllegalStateException("Profile ID " + sessionAdmin.getAdminId() + "not found.")
+        );
+
+        if (!passwordEncoder.matches(request.getCurrentPassword(), admin.getPassword())) {
+            throw new IllegalStateException("현재 비밀번호가 일치하지 않습니다.");
+        }
+
+        if (!request.getNewPassword().equals(request.getNewPasswordConfirm()))
+            throw new IllegalStateException("비밀번호 확인이 일치하지 않습니다.");
+
+        String encodedNewPassword = passwordEncoder.encode(request.getNewPasswordConfirm());
+
+        admin.updatePassword(encodedNewPassword);
     }
 
     /**
