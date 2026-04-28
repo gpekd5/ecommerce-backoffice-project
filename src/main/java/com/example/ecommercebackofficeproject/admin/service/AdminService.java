@@ -135,6 +135,8 @@ public class AdminService {
                 () -> new IllegalStateException("admin whit ID " + adminId + "not found.")
         );
 
+        validateEmailDuplicate(request.getEmail(), admin.getEmail());
+
         admin.updateInfo(request.getName(), request.getEmail(), request.getPhone());
 
         return UpdateAdminResponseDto.from(admin);
@@ -300,6 +302,8 @@ public class AdminService {
                 () -> new IllegalStateException("Profile ID " + sessionAdmin.getAdminId() + "not found.")
         );
 
+        validateEmailDuplicate(request.getEmail(), admin.getEmail());
+
         admin.updateInfo(request.getName(), request.getEmail(), request.getPhone());
 
         return MeProfileResponseDto.from(admin);
@@ -344,6 +348,24 @@ public class AdminService {
     private void validateSuperAdmin(SessionAdminDto sessionAdmin) {
         if (!AdminRole.SUPER.name().equals(sessionAdmin.getAdminRole())) {
             throw new IllegalStateException("슈퍼 관리자만 접근할 수 있습니다.");
+        }
+    }
+
+
+    /**
+     * 이메일 중복 여부 검증.
+     *
+     * 요청 이메일이 존재하고 기존 이메일과 다른 경우에만 중복 여부 확인.
+     * 이미 사용 중인 이메일인 경우 예외 발생.
+     *
+     * @param requestEmail 수정 요청으로 전달된 이메일
+     * @param currentEmail 현재 관리자 이메일
+     */
+    private void validateEmailDuplicate(String requestEmail, String currentEmail) {
+        if (requestEmail != null && !requestEmail.equals(currentEmail)) {
+            if (adminRepository.existsByEmail(requestEmail)) {
+                throw new IllegalStateException("이미 사용중인 이메일입니다.");
+            }
         }
     }
 }
