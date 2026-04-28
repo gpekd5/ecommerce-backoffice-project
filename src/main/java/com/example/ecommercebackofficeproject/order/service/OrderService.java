@@ -37,7 +37,7 @@ public class OrderService {
 
     /**
      * 주문 생성 API
-     *
+     * <p>
      * 주문을 생성하는 메서드입니다.
      * - 관리자, 상품, 고객 존재 여부를 검증합니다.
      * - 상품 상태(단종, 품절) 및 재고를 확인합니다.
@@ -50,7 +50,6 @@ public class OrderService {
     @Transactional
     public CreateOrderResponseDto createOrder(Long adminId, CreateOrderRequestDto request) {
         // todo - 단종 / 품절 / 재고 부족 / 고객 없음 / 상품 없음 / 403 처리
-        // todo - 403 처리
         Admin admin = adminRepository.findById(adminId).orElseThrow(
                 () -> new IllegalStateException("로그인한 관리자를 찾을 수 없습니다.")
         );
@@ -77,7 +76,8 @@ public class OrderService {
                 .admin(admin)
                 .build();
 
-        // todo - 상품 재고 update
+        // 상품 재고 차감
+        product.updateStock(-1 * order.getQuantity());
 
         orderRepository.save(order);
 
@@ -96,7 +96,7 @@ public class OrderService {
 
     /**
      * 특정 주문 단건 조회 API
-     *
+     * <p>
      * 주문 ID를 기반으로 주문 상세 정보를 조회합니다.
      * - 관리자 존재 여부 검증
      * - 주문 존재 여부 검증
@@ -107,7 +107,6 @@ public class OrderService {
      */
     @Transactional(readOnly = true)
     public GetOneOrderResponseDto getOneOrder(Long adminId, Long orderId) {
-        // todo - 주문 404 / 403
         Admin admin = adminRepository.findById(adminId).orElseThrow(
                 () -> new IllegalStateException("로그인한 관리자를 찾을 수 없습니다.")
         );
@@ -135,7 +134,7 @@ public class OrderService {
 
     /**
      * 주문 목록 조회 API
-     *
+     * <p>
      * 주문 목록을 조회하는 메서드입니다.
      * - 키워드 검색 (고객명, 상품명 등)
      * - 주문 상태 필터링
@@ -226,7 +225,7 @@ public class OrderService {
 
     /**
      * 주문 취소 API
-     *
+     * <p>
      * 주문을 취소하고 취소 사유를 저장합니다.
      * - 주문 상태를 취소 상태로 변경합니다.
      * - 재고 복구 로직이 포함될 수 있습니다.
@@ -241,7 +240,10 @@ public class OrderService {
                 () -> new IllegalStateException("나중에 처리 예정") // todo - custom exception
         );
         order.cancel(request.getOrderCancelReason());
-        // todo - 재고 복구 method
+        
+        // 재고 복구
+        Product product = order.getProduct();
+        product.updateStock(order.getQuantity());
 
         return CancelOrderResponseDto.builder()
                 .id(order.getId())
@@ -258,7 +260,7 @@ public class OrderService {
 
     /**
      * 주문 번호 생성 메서드
-     *
+     * <p>
      * 현재 날짜 기준으로 주문 번호를 생성합니다.
      * 형식: yyyyMMdd-XXX (예: 20260424-001)
      * - 하루 주문 건수를 기반으로 순번을 부여합니다.
