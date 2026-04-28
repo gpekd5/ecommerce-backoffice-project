@@ -99,4 +99,22 @@ public class Product extends BaseEntity {
         }
     }
 
+    /**
+     * 관리자에 의해 상품의 재고 수량을 변경합니다.
+     * 변경 후 현재 재고 상황에 맞게 상태를 재검증합니다.
+     */
+    public void updateStock(int quantity) {
+        // 1. 현 재고에 변경량을 대입
+        int updatedStock = this.stock + quantity;
+
+        // 2. 변경된 재고량이 음수인지 확인
+        if (updatedStock < 0) {
+            throw new IllegalArgumentException("재고는 0보다 작을 수 없습니다.");
+        }
+
+        // 3. 변경점 반영 및 상태 업데이트
+        this.stock = updatedStock;
+        this.autoUpdateStatus();
+    }
+
 }
