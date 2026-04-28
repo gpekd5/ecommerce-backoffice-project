@@ -76,4 +76,6 @@ public interface AdminRepository extends JpaRepository<Admin, Long> {
             @Param("status") AdminStatus status,
             Pageable pageable
     );
+
+    Long countByStatus(AdminStatus status);
 }
