@@ -151,4 +151,13 @@ public class AdminController {
         return ResponseEntity.status(HttpStatus.OK).body(adminService.reject(sessionAdmin, id, request));
     }
 
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> delete(
+            @SessionAttribute(name = "loginUser") SessionAdminDto sessionAdmin,
+            @PathVariable Long id
+    ) {
+        adminService.delete(sessionAdmin, id);
+        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+    }
+
 }

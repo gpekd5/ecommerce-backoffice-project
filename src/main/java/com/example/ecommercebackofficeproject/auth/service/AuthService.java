@@ -40,7 +40,7 @@ public class AuthService {
     @Transactional
     public SessionAdminDto login(LoginRequestDto request) {
 
-        Admin admin = adminRepository.findByEmail(request.getEmail())
+        Admin admin = adminRepository.findByEmailAndDeletedAtIsNull(request.getEmail())
                 .orElseThrow(() -> new IllegalStateException("이메일 또는 비밀번호가 일치하지 않습니다."));
 
         if (!passwordEncoder.matches(request.getPassword(), admin.getPassword())) {
