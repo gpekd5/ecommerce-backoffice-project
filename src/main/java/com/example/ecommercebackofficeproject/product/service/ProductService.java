@@ -58,8 +58,8 @@ public class ProductService {
      * @param pageable 페이징 및 정렬 정보 (Spring이 자동 생성)
      */
     @Transactional(readOnly = true)
-    public Page<GetProductPageResponseDto> getProductList(String keyword, String category, String status, Pageable pageable) {
-        return productRepository.findAllWithFilters(keyword, ProductCategory.valueOf(category), ProductStatus.valueOf(status), pageable).map(GetProductPageResponseDto::new);
+    public Page<GetProductPageResponseDto> getProductList(String keyword, ProductCategory category, ProductStatus status, Pageable pageable) {
+        return productRepository.findAllWithFilters(keyword, category, status, pageable).map(GetProductPageResponseDto::new);
     }
 
     /**

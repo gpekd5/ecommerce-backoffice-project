@@ -49,6 +49,7 @@ public class ReviewService {
      * @return 조회된 리뷰 상세 정보 DTO
      * @throws IllegalArgumentException 존재하지 않는 리뷰 ID를 조회하려 할 경우 발생
      */
+    @Transactional
     public GetReviewResponseDto getReview(Long reviewId) {
         Review review = reviewRepository.findById(reviewId).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 리뷰입니다."));
 
@@ -67,6 +68,7 @@ public class ReviewService {
      * @param reviewId 삭제할 리뷰의 고유 식별자(ID)
      * @throws IllegalArgumentException 해당 ID를 가진 리뷰가 DB에 존재하지 않을 경우 발생
      */
+    @Transactional
     public void deleteReview(Long reviewId) {
         Review review = reviewRepository.findById(reviewId).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 리뷰입니다."));
 
