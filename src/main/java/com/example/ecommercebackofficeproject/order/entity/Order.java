@@ -11,6 +11,8 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Entity
 @Table(name = "orders")
@@ -63,8 +65,13 @@ public class Order extends BaseEntity {
         this.orderStatus = orderStatus;
     }
 
-    public void addOrderCancelReason(String reason) {
+    public void cancel(String reason) {
+        if (this.orderStatus != OrderStatus.PREPARING) {
+            throw new IllegalArgumentException("준비중 상태의 주문만 취소할 수 있습니다."); // todo - custom exception
+        }
+        this.orderStatus = OrderStatus.CANCELED;
         this.orderCancelReason = reason;
+        this.delete();
     }
 
 }
