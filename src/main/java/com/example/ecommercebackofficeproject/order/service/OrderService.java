@@ -37,7 +37,7 @@ public class OrderService {
 
     /**
      * 주문 생성 API
-     * <p>
+     *
      * 주문을 생성하는 메서드입니다.
      * - 관리자, 상품, 고객 존재 여부를 검증합니다.
      * - 상품 상태(단종, 품절) 및 재고를 확인합니다.
@@ -240,7 +240,7 @@ public class OrderService {
                 () -> new IllegalStateException("나중에 처리 예정") // todo - custom exception
         );
         order.cancel(request.getOrderCancelReason());
-        
+
         // 재고 복구
         Product product = order.getProduct();
         product.updateStock(order.getQuantity());
