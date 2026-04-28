@@ -6,6 +6,7 @@ import com.example.ecommercebackofficeproject.admin.service.AdminService;
 import com.example.ecommercebackofficeproject.admin.type.AdminRole;
 import com.example.ecommercebackofficeproject.admin.type.AdminStatus;
 import com.example.ecommercebackofficeproject.auth.dto.SessionAdminDto;
+import com.example.ecommercebackofficeproject.global.response.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.PageRequest;
@@ -41,11 +42,17 @@ public class AdminController {
      * @return 생성된 관리자 정보 응답 DTO
      */
     @PostMapping("/signup")
-    public ResponseEntity<SignupAdminResponseDto> signupAdmin(
+    public ResponseEntity<ApiResponse<SignupAdminResponseDto>> signupAdmin(
             @Valid @RequestBody SignupAdminRequestDto request
     ) {
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body(adminService.signupAdmin(request));
+
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(
+                ApiResponse.success(
+                        HttpStatus.CREATED,
+                        "관리자 회원가입이 완료되었습니다.",
+                        adminService.signupAdmin(request)
+                ));
     }
 
     /**
@@ -65,7 +72,7 @@ public class AdminController {
      * @return 관리자 목록 페이지 응답 DTO
      */
     @GetMapping
-    public ResponseEntity<GetAdminsPageResponseDto> getAdmins(
+    public ResponseEntity<ApiResponse<GetAdminsPageResponseDto>> getAdmins(
             @SessionAttribute(name = "loginUser") SessionAdminDto sessionAdmin,
             @RequestParam(required = false) String keyword,
             @RequestParam(defaultValue = "1") int page,
@@ -83,8 +90,12 @@ public class AdminController {
 
         Pageable pageable = PageRequest.of(pageIndex, size, Sort.by(direction, sortBy));
 
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(adminService.getAdmins(sessionAdmin, keyword, role, status, pageable));
+        return ResponseEntity.status(HttpStatus.OK).body(
+                ApiResponse.success(
+                        HttpStatus.OK,
+                        "관리자 목록 조회가 완료되었습니다.",
+                        adminService.getAdmins(sessionAdmin, keyword, role, status, pageable)
+                        ));
     }
 
     /**
@@ -98,12 +109,16 @@ public class AdminController {
      * @return 관리자 단건 조회 응답 DTO
      */
     @GetMapping("/{id}")
-    public ResponseEntity<GetAdminResponseDto> findById(
+    public ResponseEntity<ApiResponse<GetAdminResponseDto>> findById(
             @SessionAttribute(name = "loginUser") SessionAdminDto sessionAdmin,
             @PathVariable Long id
     ) {
-        return ResponseEntity.status(HttpStatus.OK)
-                .body(adminService.findById(sessionAdmin, id));
+        return ResponseEntity.status(HttpStatus.OK).body(
+                ApiResponse.success(
+                        HttpStatus.OK,
+                        "관리자 단건 조회가 완료 되었습니다.",
+                        adminService.findById(sessionAdmin, id)
+                ));
     }
 
     /**
@@ -118,12 +133,17 @@ public class AdminController {
      * @return 관리자 정보 수정 응답 DTO
      */
     @PatchMapping("/{id}")
-    public ResponseEntity<UpdateAdminResponseDto> updateAdminInfo(
+    public ResponseEntity<ApiResponse<UpdateAdminResponseDto>> updateAdminInfo(
             @SessionAttribute(name = "loginUser") SessionAdminDto sessionAdmin,
             @PathVariable Long id,
             @Valid @RequestBody UpdateAdminRequestDto request
     ) {
-        return ResponseEntity.status(HttpStatus.OK).body(adminService.updateAdminInfo(sessionAdmin, id, request));
+        return ResponseEntity.status(HttpStatus.OK).body(
+                ApiResponse.success(
+                        HttpStatus.OK,
+                        "관리자 정보 수정이 완료되었습니다.",
+                        adminService.updateAdminInfo(sessionAdmin, id, request)
+                ));
     }
 
     /**
@@ -138,12 +158,17 @@ public class AdminController {
      * @return 관리자 역할 수정 응답 DTO
      */
     @PatchMapping("/{id}/role")
-    public ResponseEntity<UpdateAdminRoleResponseDto> updateAdminRole(
+    public ResponseEntity<ApiResponse<UpdateAdminRoleResponseDto>> updateAdminRole(
             @SessionAttribute(name = "loginUser") SessionAdminDto sessionAdmin,
             @PathVariable Long id,
             @Valid @RequestBody UpdateAdminRoleRequestDto request
     ) {
-        return ResponseEntity.status(HttpStatus.OK).body(adminService.updateAdminRole(sessionAdmin, id, request));
+        return ResponseEntity.status(HttpStatus.OK).body(
+                ApiResponse.success(
+                        HttpStatus.OK,
+                        "관리자 역할 수정이 완료되었습니다.",
+                        adminService.updateAdminRole(sessionAdmin, id, request)
+                ));
     }
 
     /**
@@ -158,12 +183,17 @@ public class AdminController {
      * @return 관리자 상태 수정 응답 DTO
      */
     @PatchMapping("/{id}/status")
-        public ResponseEntity<UpdateAdminStatusResponseDto> updateAdminStatus(
+        public ResponseEntity<ApiResponse<UpdateAdminStatusResponseDto>> updateAdminStatus(
             @SessionAttribute(name = "loginUser") SessionAdminDto sessionAdmin,
             @PathVariable Long id,
             @Valid @RequestBody UpdateAdminStatusRequestDto request
     ) {
-        return ResponseEntity.status(HttpStatus.OK).body(adminService.updateAdminStatus(sessionAdmin, id, request));
+        return ResponseEntity.status(HttpStatus.OK).body(
+                ApiResponse.success(
+                        HttpStatus.OK,
+                        "관리자 상태 수정이 완료되었습니다.",
+                        adminService.updateAdminStatus(sessionAdmin, id, request)
+                ));
     }
 
     /**
@@ -177,11 +207,16 @@ public class AdminController {
      * @return 관리자 승인 응답 DTO
      */
     @PatchMapping("/{id}/approve")
-    public ResponseEntity<UpdateAdminApproveResponseDto> approve(
+    public ResponseEntity<ApiResponse<UpdateAdminApproveResponseDto>> approve(
             @SessionAttribute(name = "loginUser") SessionAdminDto sessionAdmin,
             @PathVariable Long id
     ) {
-        return ResponseEntity.status(HttpStatus.OK).body(adminService.approve(sessionAdmin, id));
+        return ResponseEntity.status(HttpStatus.OK).body(
+                ApiResponse.success(
+                        HttpStatus.OK,
+                        "관리자 승인이 완료되었습니다.",
+                        adminService.approve(sessionAdmin, id)
+                ));
     }
 
     /**
@@ -196,12 +231,17 @@ public class AdminController {
      * @return 관리자 승인 거부 응답 DTO
      */
     @PatchMapping("/{id}/reject")
-    public ResponseEntity<UpdateAdminRejectResponseDto> reject(
+    public ResponseEntity<ApiResponse<UpdateAdminRejectResponseDto>> reject(
             @SessionAttribute(name = "loginUser") SessionAdminDto sessionAdmin,
             @PathVariable Long id,
             @Valid @RequestBody UpdateAdminRejectRequestDto request
     ) {
-        return ResponseEntity.status(HttpStatus.OK).body(adminService.reject(sessionAdmin, id, request));
+        return ResponseEntity.status(HttpStatus.OK).body(
+                ApiResponse.success(
+                        HttpStatus.OK,
+                        "관리자 승인 거부가 완료되었습니다.",
+                        adminService.reject(sessionAdmin, id, request)
+                ));
     }
 
     /**
@@ -215,12 +255,18 @@ public class AdminController {
      * @return 응답 본문 없음
      */
     @DeleteMapping("/{id}")
-    public ResponseEntity<Void> delete(
+    public ResponseEntity<ApiResponse<Void>> delete(
             @SessionAttribute(name = "loginUser") SessionAdminDto sessionAdmin,
             @PathVariable Long id
     ) {
         adminService.delete(sessionAdmin, id);
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+
+        return ResponseEntity.status(HttpStatus.OK).body(
+                ApiResponse.success(
+                        HttpStatus.OK,
+                        "관리자 삭제가 완료되었습니다.",
+                        null
+                ));
     }
 
     /**
@@ -232,8 +278,13 @@ public class AdminController {
      * @return 내 프로필 조회 응답 DTO
      */
     @GetMapping("/me")
-    public ResponseEntity<MeProfileResponseDto> getProfile(@SessionAttribute(name = "loginUser") SessionAdminDto sessionAdmin) {
-        return ResponseEntity.status(HttpStatus.OK).body(adminService.getProfile(sessionAdmin));
+    public ResponseEntity<ApiResponse<MeProfileResponseDto>> getProfile(@SessionAttribute(name = "loginUser") SessionAdminDto sessionAdmin) {
+        return ResponseEntity.status(HttpStatus.OK).body(
+                ApiResponse.success(
+                        HttpStatus.OK,
+                        "내 프로필 조회가 되었습니다.",
+                        adminService.getProfile(sessionAdmin)
+                ));
     }
 
     /**
@@ -247,11 +298,16 @@ public class AdminController {
      * @return 내 프로필 수정 응답 DTO
      */
     @PatchMapping("/me")
-    public ResponseEntity<MeProfileResponseDto> updateProfile(
+    public ResponseEntity<ApiResponse<MeProfileResponseDto>> updateProfile(
             @SessionAttribute(name = "loginUser") SessionAdminDto sessionAdmin,
             @Valid @RequestBody UpdateAdminRequestDto request
     ) {
-        return ResponseEntity.status(HttpStatus.OK).body(adminService.updateProfile(sessionAdmin, request));
+        return ResponseEntity.status(HttpStatus.OK).body(
+                ApiResponse.success(
+                        HttpStatus.OK,
+                        "내 프로필 정보가 수정되었습니다.",
+                        adminService.updateProfile(sessionAdmin, request)
+                ));
     }
 
     /**
@@ -265,12 +321,17 @@ public class AdminController {
      * @return 응답 본문 없음
      */
     @PatchMapping("/me/password")
-    public ResponseEntity<Void> updatePassword(
+    public ResponseEntity<ApiResponse<Void>> updatePassword(
             @SessionAttribute(name = "loginUser") SessionAdminDto sessionAdminDto,
             @Valid @RequestBody UpdatePasswordRequestDto request
     ) {
         adminService.updatePassword(sessionAdminDto, request);
-        return ResponseEntity.status(HttpStatus.OK).build();
+        return ResponseEntity.status(HttpStatus.OK).body(
+                ApiResponse.success(
+                        HttpStatus.OK,
+                        "내 비밀번호 변경이 되었습니다.",
+                        null
+                ));
     }
 
 }

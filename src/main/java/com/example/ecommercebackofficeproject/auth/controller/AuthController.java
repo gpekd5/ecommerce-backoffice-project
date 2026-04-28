@@ -3,6 +3,8 @@ package com.example.ecommercebackofficeproject.auth.controller;
 import com.example.ecommercebackofficeproject.auth.dto.LoginRequestDto;
 import com.example.ecommercebackofficeproject.auth.dto.SessionAdminDto;
 import com.example.ecommercebackofficeproject.auth.service.AuthService;
+import com.example.ecommercebackofficeproject.global.exception.BadRequestException;
+import com.example.ecommercebackofficeproject.global.response.ApiResponse;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -37,14 +39,19 @@ public class AuthController {
      * @return 로그인 처리 결과 응답
      */
     @PostMapping("/login")
-    public ResponseEntity<Void> login(
+    public ResponseEntity<ApiResponse<Void>> login(
             @Valid @RequestBody LoginRequestDto request,
             HttpSession session
     ) {
         SessionAdminDto sessionAdmin = authService.login(request);
         session.setAttribute("loginUser", sessionAdmin);
 
-        return ResponseEntity.status(HttpStatus.OK).build();
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResponse.success(
+                        HttpStatus.OK,
+                        "로그인이 완료되었습니다.",
+                        null
+                ));
     }
 
     /**
@@ -58,16 +65,21 @@ public class AuthController {
      * @return 로그아웃 처리 결과 응답
      */
     @PostMapping("/logout")
-    public ResponseEntity<Void> logout(
+    public ResponseEntity<ApiResponse<Void>> logout(
             @SessionAttribute(name = "loginUser", required = false) SessionAdminDto sessionAdmin,
             HttpSession session
     ) {
         if (sessionAdmin == null) {
-            return ResponseEntity.badRequest().build();
+            throw new BadRequestException("로그인 정보가 없습니다.");
         }
 
         session.invalidate();
 
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        return ResponseEntity.status(HttpStatus.OK)
+                .body(ApiResponse.success(
+                        HttpStatus.OK,
+                        "로그아웃이 완료되었습니다.",
+                        null
+                ));
     }
 }
