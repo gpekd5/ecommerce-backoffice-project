@@ -17,10 +17,10 @@ public class DashboardController {
 
     private final DashboardService dashboardService;
 
-    @GetMapping("/summary")
-    public ResponseEntity<DashboardSummaryResponseDto> getSummary() {
-        DashboardSummaryResponseDto result = dashboardService.getSummary();
-        return ResponseEntity.status(HttpStatus.OK).body(result);
-    }
+//    @GetMapping("/summary")
+//    public ResponseEntity<DashboardSummaryResponseDto> getSummary() {
+//        DashboardSummaryResponseDto result = dashboardService.getSummary();
+//        return ResponseEntity.status(HttpStatus.OK).body(result);
+//    }
 
 }
