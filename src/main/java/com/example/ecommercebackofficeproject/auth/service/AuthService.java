@@ -37,7 +37,7 @@ public class AuthService {
      * @param request 관리자 로그인 요청 DTO
      * @return 세션 저장용 관리자 DTO
      */
-    @Transactional
+    @Transactional(readOnly = true)
     public SessionAdminDto login(LoginRequestDto request) {
 
         Admin admin = adminRepository.findByEmailAndDeletedAtIsNull(request.getEmail())
