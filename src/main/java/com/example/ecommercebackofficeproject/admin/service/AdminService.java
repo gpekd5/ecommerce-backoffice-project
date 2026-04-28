@@ -7,6 +7,7 @@ import com.example.ecommercebackofficeproject.admin.repository.AdminRepository;
 import com.example.ecommercebackofficeproject.admin.type.AdminRole;
 import com.example.ecommercebackofficeproject.admin.type.AdminStatus;
 import com.example.ecommercebackofficeproject.auth.dto.SessionAdminDto;
+import com.example.ecommercebackofficeproject.global.exception.*;
 import com.example.ecommercebackofficeproject.global.security.PasswordEncoder;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Pageable;
@@ -47,7 +48,7 @@ public class AdminService {
     public SignupAdminResponseDto signupAdmin(SignupAdminRequestDto request) {
 
         if (adminRepository.existsByEmail(request.getEmail())) {
-            throw new IllegalStateException("이미 사용중인 이메일입니다.");
+            throw new ConflictException("이미 사용중인 이메일입니다.");
         }
 
         String encodedPassword = passwordEncoder.encode(request.getPassword());
@@ -110,7 +111,7 @@ public class AdminService {
         validateSuperAdmin(sessionAdmin);
 
         Admin admin = adminRepository.findByIdAndDeletedAtIsNull(adminId).orElseThrow(
-                () -> new IllegalStateException("admin whit ID " + adminId + "not found.")
+                () -> new NotFoundException("admin with ID " + adminId + "not found.")
         );
 
         return GetAdminResponseDto.from(admin);
@@ -132,7 +133,7 @@ public class AdminService {
         validateSuperAdmin(sessionAdmin);
 
         Admin admin = adminRepository.findById(adminId).orElseThrow(
-                () -> new IllegalStateException("admin whit ID " + adminId + "not found.")
+                () -> new NotFoundException("admin with ID " + adminId + "not found.")
         );
 
         validateEmailDuplicate(request.getEmail(), admin.getEmail());
@@ -158,7 +159,7 @@ public class AdminService {
         validateSuperAdmin(sessionAdmin);
 
         Admin admin = adminRepository.findById(adminId).orElseThrow(
-                () -> new IllegalStateException("admin whit ID " + adminId + "not found.")
+                () -> new NotFoundException("admin with ID " + adminId + "not found.")
         );
 
         admin.updateRole(request.getRole());
@@ -182,7 +183,7 @@ public class AdminService {
         validateSuperAdmin(sessionAdmin);
 
         Admin admin = adminRepository.findById(adminId).orElseThrow(
-                () -> new IllegalStateException("admin whit ID " + adminId + "not found.")
+                () -> new NotFoundException("admin with ID " + adminId + "not found.")
         );
 
         admin.updateStatus(request.getStatus());
@@ -205,11 +206,11 @@ public class AdminService {
         validateSuperAdmin(sessionAdmin);
 
         Admin admin = adminRepository.findById(adminId).orElseThrow(
-                () -> new IllegalStateException("admin whit ID " + adminId + "not found.")
+                () -> new NotFoundException("admin with ID " + adminId + "not found.")
         );
 
         if (admin.getStatus() != AdminStatus.PENDING) {
-            throw new IllegalStateException("승인대기 상태의 관리자만 승인할 수 있습니다.");
+            throw new BadRequestException("승인대기 상태의 관리자만 승인할 수 있습니다.");
         }
 
         admin.approve();
@@ -234,11 +235,11 @@ public class AdminService {
         validateSuperAdmin(sessionAdmin);
 
         Admin admin = adminRepository.findById(adminId).orElseThrow(
-                () -> new IllegalStateException("admin whit ID " + adminId + "not found.")
+                () -> new NotFoundException("admin with ID " + adminId + "not found.")
         );
 
         if (admin.getStatus() != AdminStatus.PENDING) {
-            throw new IllegalStateException("승인대기 상태의 관리자만 승인할 수 있습니다.");
+            throw new BadRequestException("승인대기 상태의 관리자만 승인할 수 있습니다.");
         }
 
         admin.reject(request.getRejectReason());
@@ -260,7 +261,7 @@ public class AdminService {
         validateSuperAdmin(sessionAdmin);
 
         Admin admin = adminRepository.findById(adminId).orElseThrow(
-                () -> new IllegalStateException("admin whit ID " + adminId + "not found.")
+                () -> new NotFoundException("admin with ID " + adminId + "not found.")
         );
 
         admin.delete();
@@ -279,7 +280,7 @@ public class AdminService {
     public MeProfileResponseDto getProfile(SessionAdminDto sessionAdmin) {
 
         Admin admin = adminRepository.findById(sessionAdmin.getAdminId()).orElseThrow(
-                () -> new IllegalStateException("Profile ID " + sessionAdmin.getAdminId() + "not found.")
+                () -> new NotFoundException("Profile ID " + sessionAdmin.getAdminId() + "not found.")
         );
 
         return MeProfileResponseDto.from(admin);
@@ -299,7 +300,7 @@ public class AdminService {
     public MeProfileResponseDto updateProfile(SessionAdminDto sessionAdmin, UpdateAdminRequestDto request) {
 
         Admin admin = adminRepository.findById(sessionAdmin.getAdminId()).orElseThrow(
-                () -> new IllegalStateException("Profile ID " + sessionAdmin.getAdminId() + "not found.")
+                () -> new NotFoundException("Profile ID " + sessionAdmin.getAdminId() + "not found.")
         );
 
         validateEmailDuplicate(request.getEmail(), admin.getEmail());
@@ -323,15 +324,15 @@ public class AdminService {
     public void updatePassword(SessionAdminDto sessionAdmin, UpdatePasswordRequestDto request) {
 
         Admin admin = adminRepository.findById(sessionAdmin.getAdminId()).orElseThrow(
-                () -> new IllegalStateException("Profile ID " + sessionAdmin.getAdminId() + "not found.")
+                () -> new NotFoundException("Profile ID " + sessionAdmin.getAdminId() + "not found.")
         );
 
         if (!passwordEncoder.matches(request.getCurrentPassword(), admin.getPassword())) {
-            throw new IllegalStateException("현재 비밀번호가 일치하지 않습니다.");
+            throw new UnauthorizedException("현재 비밀번호가 일치하지 않습니다.");
         }
 
         if (!request.getNewPassword().equals(request.getNewPasswordConfirm()))
-            throw new IllegalStateException("비밀번호 확인이 일치하지 않습니다.");
+            throw new BadRequestException("비밀번호 확인이 일치하지 않습니다.");
 
         String encodedNewPassword = passwordEncoder.encode(request.getNewPasswordConfirm());
 
@@ -347,7 +348,7 @@ public class AdminService {
      */
     private void validateSuperAdmin(SessionAdminDto sessionAdmin) {
         if (!AdminRole.SUPER.name().equals(sessionAdmin.getAdminRole())) {
-            throw new IllegalStateException("슈퍼 관리자만 접근할 수 있습니다.");
+            throw new ForbiddenException("슈퍼 관리자만 접근할 수 있습니다.");
         }
     }
 
@@ -364,7 +365,7 @@ public class AdminService {
     private void validateEmailDuplicate(String requestEmail, String currentEmail) {
         if (requestEmail != null && !requestEmail.equals(currentEmail)) {
             if (adminRepository.existsByEmail(requestEmail)) {
-                throw new IllegalStateException("이미 사용중인 이메일입니다.");
+                throw new ConflictException("이미 사용중인 이메일입니다.");
             }
         }
     }

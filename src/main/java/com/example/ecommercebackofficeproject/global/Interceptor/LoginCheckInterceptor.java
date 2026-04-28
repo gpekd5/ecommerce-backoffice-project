@@ -1,5 +1,6 @@
 package com.example.ecommercebackofficeproject.global.Interceptor;
 
+import com.example.ecommercebackofficeproject.global.exception.*;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
@@ -29,14 +30,16 @@ public class LoginCheckInterceptor implements HandlerInterceptor {
 
         // 세션이 없거나, 세션 안에 "admin" 데이터가 없으면 401 에러를 던지고 끝냄
         if (session == null || session.getAttribute("loginUser") == null) {
+            throw new UnauthorizedException("로그인이 필요합니다.");
 
-            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // 401 Unauthorized
+//            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED); // 401 Unauthorized
+//
+//            response.setContentType("application/json;charset=UTF-8");
+//
+//            response.getWriter().write("{\"message\": \"로그인이 필요합니다.\"}");
+//
+//            return false; // 컨트롤러로 못 가게 막음
 
-            response.setContentType("application/json;charset=UTF-8");
-
-            response.getWriter().write("{\"message\": \"로그인이 필요합니다.\"}");
-
-            return false; // 컨트롤러로 못 가게 막음
         }
 
         return true; // 로그인 되어 있으면 통과
