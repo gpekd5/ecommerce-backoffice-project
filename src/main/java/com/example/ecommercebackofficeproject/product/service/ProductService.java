@@ -10,12 +10,17 @@ import com.example.ecommercebackofficeproject.product.entity.Product;
 import com.example.ecommercebackofficeproject.product.repository.ProductRepository;
 import com.example.ecommercebackofficeproject.product.type.ProductCategory;
 import com.example.ecommercebackofficeproject.product.type.ProductStatus;
+import com.example.ecommercebackofficeproject.review.dto.response.RecentReviewResponseDto;
+import com.example.ecommercebackofficeproject.review.dto.response.ReviewStatsResponseDto;
+import com.example.ecommercebackofficeproject.review.service.ReviewService;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.List;
 
 /**
  * 상품 관리 시스템의 비즈니스 로직을 구현하는 서비스 클래스입니다.
@@ -24,6 +29,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class ProductService {
+
+    private final ReviewService reviewService;
 
     private final ProductRepository productRepository;
 
@@ -57,19 +64,31 @@ public class ProductService {
 
     /**
      * 특정 상품의 상세 정보를 조회합니다.
+     * 상품의 기본 정보와 더불어, ReviewService를 통해
+     * 해당 상품의 리뷰 통계 및 최신 리뷰 목록을 포함하여 반환합니다.
+     *
      * @param productId 조회할 상품의 고유 식별자(ID)
-     * @return 조회된 상품 상세 정보 DTO
-     * @throws IllegalArgumentException 존재하지 않는 상품 ID를 조회하려 할 경우 발생
+     * @return 상품 상세 정보, 리뷰 통계, 최신 리뷰 3건을 포함한 응답 DTO
+     * @throws IllegalArgumentException 존재하지 않는 상품 ID일 경우 발생
+     * @throws IllegalStateException    이미 삭제된 상품일 경우 발생
      */
     @Transactional(readOnly = true)
     public GetProductResponseDto getProduct(Long productId) {
+        // 1. 특정 상품 기본 정보 조회 및 검증
         Product product = productRepository.findById(productId).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 상품입니다."));
 
         if(product.isDeleted()) {
             throw new IllegalStateException("삭제된 상품입니다.");
         }
 
-        return new GetProductResponseDto(product);
+        // 2. 리뷰 통계 조회
+        ReviewStatsResponseDto reviewStats = reviewService.getReviewStat(productId);
+
+        // 3. 최신 리뷰 3건 조회
+        List<RecentReviewResponseDto> recentReviews = reviewService.getRecentReviews(productId);
+
+        // 4. 모든 정보를 DTO에 합쳐 반환
+        return new GetProductResponseDto(product, reviewStats, recentReviews);
     }
 
     /**
