@@ -1,6 +1,9 @@
 package com.example.ecommercebackofficeproject.review.service;
 
+import com.example.ecommercebackofficeproject.admin.type.AdminRole;
+import com.example.ecommercebackofficeproject.auth.dto.SessionAdminDto;
 import com.example.ecommercebackofficeproject.global.exception.NotFoundException;
+import com.example.ecommercebackofficeproject.global.exception.UnauthorizedException;
 import com.example.ecommercebackofficeproject.review.dto.response.GetReviewPageResponseDto;
 import com.example.ecommercebackofficeproject.review.dto.response.GetReviewResponseDto;
 import com.example.ecommercebackofficeproject.review.dto.response.RecentReviewResponseDto;
@@ -64,11 +67,18 @@ public class ReviewService {
     /**
      * 리뷰를 논리적으로 삭제(Soft Delete) 처리합니다.
      *
-     * @param reviewId 삭제할 리뷰 고유 식별자
+     * @param sessionAdmin 삭제를 진행하려는 관리자 로그인정보
+     * @param reviewId     삭제할 리뷰 고유 식별자
+     * @throws UnauthorizedException 삭제하려는 관리자에게 권한이 없는 경우 발생
      * @throws NotFoundException 존재하지 않는 리뷰 식별자일 경우 발생
      */
     @Transactional
-    public void deleteReview(Long reviewId) {
+    public void deleteReview(SessionAdminDto sessionAdmin, Long reviewId) {
+
+        if(sessionAdmin.getAdminRole().equals(AdminRole.CS.name())) {
+            throw new UnauthorizedException("해당 권한을 가지고 있지 않습니다.");
+        }
+
         Review review = reviewRepository.findById(reviewId).orElseThrow(() -> new NotFoundException("review with ID " + reviewId + "not found."));
 
         review.delete();

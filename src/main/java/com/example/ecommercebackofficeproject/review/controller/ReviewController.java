@@ -57,7 +57,7 @@ public class ReviewController {
      */
     @DeleteMapping("/reviews/{reviewId}")
     public ResponseEntity<ApiResponse<Void>> deleteReview(@PathVariable Long reviewId, @RequestAttribute(name="loginUser") SessionAdminDto sessionAdmin) {
-        reviewService.deleteReview(reviewId);
+        reviewService.deleteReview(sessionAdmin, reviewId);
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(HttpStatus.OK, "리뷰가 삭제되었습니다.", null));
     }
 
