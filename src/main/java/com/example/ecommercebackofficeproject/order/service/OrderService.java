@@ -205,7 +205,8 @@ public class OrderService {
      * @return 변경된 주문 상태 정보
      */
     @Transactional
-    public UpdateOrderResponseDto updateOrder(Long orderId, UpdateOrderRequestDto request) {
+    public UpdateOrderResponseDto updateOrder(Long adminId, Long orderId, UpdateOrderRequestDto request) {
+        validateAdmin(adminId);
         Order order = validateOrder(orderId);
         OrderStatus status = validateOrderStatus(request.getOrderStatus());
         order.changeOrderStatus(status);
@@ -287,7 +288,7 @@ public class OrderService {
      * @param adminId 관리자 ID
      * @return 검증된 관리자 엔티티
      * @throws UnauthorizedException 관리자가 존재하지 않는 경우 (로그인 안됨)
-     * @throws ForbiddenException 관리자가 비활성 상태인 경우 (권한 없음)
+     * @throws ForbiddenException    관리자가 비활성 상태인 경우 (권한 없음)
      */
     private Admin validateAdmin(Long adminId) {
         Admin admin = adminRepository.findById(adminId).orElseThrow(
