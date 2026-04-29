@@ -2,9 +2,12 @@ package com.example.ecommercebackofficeproject.product.controller;
 
 import com.example.ecommercebackofficeproject.auth.dto.SessionAdminDto;
 import com.example.ecommercebackofficeproject.product.dto.request.ProductRequestDto;
+import com.example.ecommercebackofficeproject.product.dto.request.ProductUpdateInfoDto;
+import com.example.ecommercebackofficeproject.product.dto.request.ProductUpdateStatusDto;
 import com.example.ecommercebackofficeproject.product.dto.response.CreateProductResponseDto;
 import com.example.ecommercebackofficeproject.product.dto.response.GetProductPageResponseDto;
 import com.example.ecommercebackofficeproject.product.dto.response.GetProductResponseDto;
+import com.example.ecommercebackofficeproject.product.dto.response.ProductResponseDto;
 import com.example.ecommercebackofficeproject.product.service.ProductService;
 import com.example.ecommercebackofficeproject.product.type.ProductCategory;
 import com.example.ecommercebackofficeproject.product.type.ProductStatus;
@@ -49,7 +52,7 @@ public class ProductController {
      * @return 페이징 처리된 상품 응답 DTO 목록을 담은 ResponseEntity
      */
     @GetMapping("/products")
-    public ResponseEntity<Page<GetProductPageResponseDto>> getProductList(@RequestParam(required = false) String keyword, @RequestParam(required = false) ProductCategory category, @RequestParam(required = false) ProductStatus status, @PageableDefault(page = 1, size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+    public ResponseEntity<GetProductPageResponseDto> getProductList(@RequestParam(required = false) String keyword, @RequestParam(required = false) ProductCategory category, @RequestParam(required = false) ProductStatus status, @PageableDefault(page = 0, size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
         return ResponseEntity.ok(productService.getProductList(keyword, category, status, pageable));
     }
 
@@ -71,7 +74,7 @@ public class ProductController {
      * @return 수정이 완료된 상품의 상세 정보 DTO
      */
     @PatchMapping("/products/{productId}")
-    public ResponseEntity<GetProductResponseDto> updateProductInfo(@PathVariable Long productId, @Valid @RequestBody ProductRequestDto dto, @SessionAttribute(name="loginUser") SessionAdminDto sessionAdmin) {
+    public ResponseEntity<ProductResponseDto> updateProductInfo(@PathVariable Long productId, @Valid @RequestBody ProductUpdateInfoDto dto, @SessionAttribute(name="loginUser") SessionAdminDto sessionAdmin) {
         return ResponseEntity.ok(productService.updateProductInfo(productId, dto));
     }
 
@@ -83,7 +86,7 @@ public class ProductController {
      * @return 상태 변경이 완료된 상품의 상세 정보 DTO
      */
     @PatchMapping("/products/{productId}/status")
-    public ResponseEntity<GetProductResponseDto> updateProductStatus(@PathVariable Long productId, @Valid @RequestBody ProductRequestDto dto, @SessionAttribute(name="loginUser") SessionAdminDto sessionAdmin) {
+    public ResponseEntity<ProductResponseDto> updateProductStatus(@PathVariable Long productId, @Valid @RequestBody ProductUpdateStatusDto dto, @SessionAttribute(name="loginUser") SessionAdminDto sessionAdmin) {
         return ResponseEntity.ok(productService.updateProductStatus(productId, dto));
     }
 

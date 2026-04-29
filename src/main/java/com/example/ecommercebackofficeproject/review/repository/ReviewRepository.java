@@ -42,17 +42,12 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
             "(r.deletedAt IS NULL)")
     Page<Review> findAllWithFilters(@Param("keyword") String keyword, @Param("rating") int rating, Pageable pageable);
 
-    /**
-     * 특정 상품의 평균 평점과 전체 리뷰 개수를 조회합니다.
-     * <p>
-     * DB의 집계 함수(AVG, COUNT)를 사용하여 성능을 최적화하며,
-     * 결과는 [평균 평점(Double), 전체 개수(Long)] 형태의 배열로 반환됩니다.
-     *
-     * @param productId 상품 고유 식별자
-     * @return [0]: 평균 평점, [1]: 전체 리뷰 개수를 담은 Object 배열
-     */
-    @Query("SELECT AVG(r.rating), COUNT(r) FROM Review r JOIN r.product p WHERE p.productId = :productId")
-    Object[] getBasicStats(@Param("productId") Long productId);
+
+    @Query("SELECT AVG(r.rating) FROM Review r JOIN r.product p WHERE p.productId = :productId")
+    Double getAvgRating(@Param("productId") Long productId);
+
+    @Query("SELECT COUNT(r) FROM Review r JOIN r.product p WHERE p.productId = :productId")
+    Long getReviewCnt(@Param("productId") Long productId);
 
     /**
      * 특정 상품의 별점별 리뷰 개수 분포를 조회합니다.
