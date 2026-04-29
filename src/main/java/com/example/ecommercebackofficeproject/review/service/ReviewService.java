@@ -38,8 +38,11 @@ public class ReviewService {
      * @return 페이징 처리된 리뷰 응답 DTO 목록
      */
     @Transactional(readOnly = true)
-    public Page<GetReviewPageResponseDto> getReviewList(String keyword, int rating, Pageable pageable) {
-        return reviewRepository.findAllWithFilters(keyword, rating, pageable).map(GetReviewPageResponseDto::new);
+    public GetReviewPageResponseDto getReviewList(String keyword, Integer rating, Pageable pageable) {
+
+        Page<Review> reviewPage = reviewRepository.findAllWithFilters(keyword, rating, pageable);
+
+        return new GetReviewPageResponseDto(reviewPage);
     }
 
     /**
