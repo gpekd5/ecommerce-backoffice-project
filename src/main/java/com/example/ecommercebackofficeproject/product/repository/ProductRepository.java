@@ -1,5 +1,6 @@
 package com.example.ecommercebackofficeproject.product.repository;
 
+import com.example.ecommercebackofficeproject.dashboard.dto.ProductCategoryCountDto;
 import com.example.ecommercebackofficeproject.product.entity.Product;
 import com.example.ecommercebackofficeproject.product.type.ProductCategory;
 import com.example.ecommercebackofficeproject.product.type.ProductStatus;
@@ -9,6 +10,9 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
+
+import java.util.Arrays;
+import java.util.List;
 
 /**
  * 상품(Product) 엔티티에 대한 데이터베이스 액세스 처리를 담당하는 리포지토리입니다.
@@ -41,4 +45,11 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
     Page<Product> findAllWithFilters(@Param("keyword") String keyword, @Param("category") ProductCategory category, @Param("status") ProductStatus status, Pageable pageable);
 
     Long countByStockLessThanEqual(Integer stock);
+
+    Long countByStock(Integer stock);
+
+    @Query("SELECT p.category AS category, COUNT(p) AS count " +
+            "FROM Product p " +
+            "GROUP BY p.category")
+    List<ProductCategoryCountDto> countGroupByCategory();
 }
