@@ -9,8 +9,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 /**
- * 리뷰 전체 조회 시 응답 데이터로 사용되는 DTO 클래스입니다.
- * Product 엔티티를 클라이언트에 필요한 정보만 담은 응답 객체로 변환합니다.
+ * 리뷰 목록 조회 시 페이징 정보와 데이터를 함께 반환하는 응답 DTO 클래스입니다.
  */
 @Getter
 public class GetReviewPageResponseDto {
@@ -22,7 +21,10 @@ public class GetReviewPageResponseDto {
     private final Integer totalPages;
 
     /**
-     * Review 엔티티 객체를 바탕으로 응답용 DTO를 생성합니다.
+     * Spring Data JPA의 Page 객체를 바탕으로 응답용 DTO를 생성합니다.
+     * 사용자 편의를 위해 0부터 시작하는 페이지 번호를 1부터 시작하도록 보정합니다.
+     *
+     * @param page 리뷰 엔티티 페이지 객체
      */
     public GetReviewPageResponseDto(Page<Review> page) {
         this.content = page.getContent().stream().map(ReviewResponseDto::new).toList();
