@@ -1,6 +1,7 @@
 package com.example.ecommercebackofficeproject.auth.controller;
 
 import com.example.ecommercebackofficeproject.auth.dto.LoginRequestDto;
+import com.example.ecommercebackofficeproject.auth.dto.LoginResponseDto;
 import com.example.ecommercebackofficeproject.auth.dto.SessionAdminDto;
 import com.example.ecommercebackofficeproject.auth.service.AuthService;
 import com.example.ecommercebackofficeproject.global.exception.BadRequestException;
@@ -35,22 +36,19 @@ public class AuthController {
      * 인증 성공 시 세션에 로그인 관리자 정보 저장.
      *
      * @param request 관리자 로그인 요청 DTO
-     * @param session HTTP 세션 객체
      * @return 로그인 처리 결과 응답
      */
     @PostMapping("/login")
-    public ResponseEntity<ApiResponse<Void>> login(
-            @Valid @RequestBody LoginRequestDto request,
-            HttpSession session
+    public ResponseEntity<ApiResponse<LoginResponseDto>> login(
+            @Valid @RequestBody LoginRequestDto request
     ) {
-        SessionAdminDto sessionAdmin = authService.login(request);
-        session.setAttribute("loginUser", sessionAdmin);
+        LoginResponseDto response = authService.login(request);
 
         return ResponseEntity.status(HttpStatus.OK)
                 .body(ApiResponse.success(
                         HttpStatus.OK,
                         "로그인이 완료되었습니다.",
-                        null
+                        response
                 ));
     }
 
@@ -66,7 +64,7 @@ public class AuthController {
      */
     @PostMapping("/logout")
     public ResponseEntity<ApiResponse<Void>> logout(
-            @SessionAttribute(name = "loginUser", required = false) SessionAdminDto sessionAdmin,
+            @RequestAttribute(name = "loginUser", required = false) SessionAdminDto sessionAdmin,
             HttpSession session
     ) {
         if (sessionAdmin == null) {
