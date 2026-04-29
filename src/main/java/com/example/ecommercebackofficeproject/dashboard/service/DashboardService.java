@@ -1,10 +1,13 @@
 package com.example.ecommercebackofficeproject.dashboard.service;
 
+import com.example.ecommercebackofficeproject.admin.entity.Admin;
 import com.example.ecommercebackofficeproject.admin.repository.AdminRepository;
 import com.example.ecommercebackofficeproject.admin.type.AdminStatus;
 import com.example.ecommercebackofficeproject.customer.repository.CustomerRepository;
 import com.example.ecommercebackofficeproject.customer.type.CustomerStatus;
 import com.example.ecommercebackofficeproject.dashboard.dto.*;
+import com.example.ecommercebackofficeproject.global.exception.ForbiddenException;
+import com.example.ecommercebackofficeproject.global.exception.UnauthorizedException;
 import com.example.ecommercebackofficeproject.order.repository.OrderRepository;
 import com.example.ecommercebackofficeproject.order.type.OrderStatus;
 import com.example.ecommercebackofficeproject.product.repository.ProductRepository;
@@ -57,13 +60,33 @@ public class DashboardService {
      *
      * @return 대시보드 전체 데이터를 담은 {@link DashboardResponseDto}
      */
-    public DashboardResponseDto getDashboard() {
+    public DashboardResponseDto getDashboard(Long adminId) {
+        validateAdmin(adminId);
+
         return DashboardResponseDto.builder()
                 .summary(getSummary())
                 .widgets(getWidgets())
                 .charts(getCharts())
                 .recentOrders(getRecentOrders())
                 .build();
+    }
+
+    /**
+     * 관리자 ID로 관리자를 조회하고, 로그인 및 활성 상태를 검증합니다.
+     *
+     * @param adminId 관리자 ID
+     * @return 검증된 관리자 엔티티
+     * @throws UnauthorizedException 관리자가 존재하지 않는 경우 (로그인 안됨)
+     * @throws ForbiddenException    관리자가 비활성 상태인 경우 (권한 없음)
+     */
+    private Admin validateAdmin(Long adminId) {
+        Admin admin = adminRepository.findById(adminId).orElseThrow(
+                () -> new UnauthorizedException("로그인한 관리자를 찾을 수 없습니다.")
+        );
+        if (admin.getStatus() != AdminStatus.ACTIVE) {
+            throw new ForbiddenException("접근 권한이 없습니다.");
+        }
+        return admin;
     }
 
     /**
