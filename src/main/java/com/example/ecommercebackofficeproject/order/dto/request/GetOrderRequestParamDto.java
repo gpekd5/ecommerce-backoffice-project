@@ -10,5 +10,5 @@ public class GetOrderRequestParamDto {
     Integer size = 10;
     String sortBy = "orderedAt";
     String sortDirection = "DESC";
-    OrderStatus orderStatus;
+    String orderStatus;
 }

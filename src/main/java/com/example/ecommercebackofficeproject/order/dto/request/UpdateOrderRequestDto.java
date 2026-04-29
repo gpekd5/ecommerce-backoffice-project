@@ -7,9 +7,6 @@ import lombok.Getter;
 @Getter
 public class UpdateOrderRequestDto {
     @NotNull(message = "orderStatus는 필수 입력값입니다.")
-    private final OrderStatus orderStatus;
+    private String orderStatus;
 
-    public UpdateOrderRequestDto(OrderStatus orderStatus) {
-        this.orderStatus = orderStatus;
-    }
 }
