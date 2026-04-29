@@ -54,7 +54,7 @@ public class ReviewController {
      * @return 성공 시 응답 본문이 없는 ResponseEntity (204 No Content)
      */
     @DeleteMapping("/reviews/{reviewId}")
-    public ResponseEntity<Void> deleteReview(@PathVariable Long reviewId, @SessionAttribute(name="loginUser") SessionAdminDto sessionAdmin) {
+    public ResponseEntity<Void> deleteReview(@PathVariable Long reviewId, @RequestAttribute(name="loginUser") SessionAdminDto sessionAdmin) {
 
         reviewService.deleteReview(reviewId);
 
