@@ -2,6 +2,7 @@ package com.example.ecommercebackofficeproject.product.service;
 
 import com.example.ecommercebackofficeproject.admin.entity.Admin;
 import com.example.ecommercebackofficeproject.admin.repository.AdminRepository;
+import com.example.ecommercebackofficeproject.global.exception.NotFoundException;
 import com.example.ecommercebackofficeproject.product.dto.request.ProductRequestDto;
 import com.example.ecommercebackofficeproject.product.dto.request.ProductUpdateInfoDto;
 import com.example.ecommercebackofficeproject.product.dto.request.ProductUpdateStatusDto;
@@ -26,39 +27,39 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 
 /**
- * 상품 관리 시스템의 비즈니스 로직을 구현하는 서비스 클래스입니다.
- * 상품에 대한 등록, 조회, 수정, 삭제 기능을 제공합니다.
+ * 상품 관리 시스템의 비즈니스 로직을 담당하는 서비스 클래스입니다.
+ * 상품 등록, 페이징 조회, 상세 정보 제공(리뷰 포함), 수정 및 논리 삭제 기능을 처리합니다.
  */
 @Service
 @RequiredArgsConstructor
 public class ProductService {
 
     private final ReviewService reviewService;
-
     private final ProductRepository productRepository;
-
     private final AdminRepository adminRepository;
 
     /**
-     * 새로운 상품을 등록합니다.
-     * @param dto 상품 등록을 위한 요청 데이터
-     * @param id 로그인 되어있는 관리자의 고유 ID
-     * @return 저장된 상품 정보 (DTO)
+     * 새로운 상품을 시스템에 등록합니다.
+     * @param dto 상품 등록 정보 (상품명, 가격, 재고, 카테고리 등)
+     * @param id  JWT를 통해 인증된 관리자의 고유 식별자
+     * @return    등록 완료된 상품의 상세 데이터
+     * @throws NotFoundException 관리자 ID가 유효하지 않을 경우 발생
      */
     @Transactional
     public CreateProductResponseDto saveProduct(@Valid ProductRequestDto dto, Long id) {
 
-        Admin admin = adminRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 관리자입니다."));
+        Admin admin = adminRepository.findById(id).orElseThrow(() -> new NotFoundException("admin with ID " + id + "not found."));
 
         return new CreateProductResponseDto(productRepository.save(dto.toEntity(admin)));
     }
 
     /**
-     * 상품 전체 조회 및 검색
-     * @param keyword  검색어
-     * @param category 카테고리 필터
-     * @param status   상태 필터 (판매중, 품절 등)
-     * @param pageable 페이징 및 정렬 정보 (Spring이 자동 생성)
+     * 필터 조건에 따른 상품 목록을 페이징 처리하여 조회합니다.
+     * @param keyword  상품명 검색어 (선택 사항)
+     * @param category 카테고리 필터 (선택 사항)
+     * @param status   상품 판매 상태 필터 (선택 사항)
+     * @param pageable 페이징 및 정렬 정보
+     * @return         필터링된 상품 목록과 페이징 메타데이터를 포함한 응답 DTO
      */
     @Transactional(readOnly = true)
     public GetProductPageResponseDto getProductList(String keyword, ProductCategory category, ProductStatus status, Pageable pageable) {
@@ -70,22 +71,19 @@ public class ProductService {
     }
 
     /**
-     * 특정 상품의 상세 정보를 조회합니다.
-     * 상품의 기본 정보와 더불어, ReviewService를 통해
-     * 해당 상품의 리뷰 통계 및 최신 리뷰 목록을 포함하여 반환합니다.
-     *
-     * @param productId 조회할 상품의 고유 식별자(ID)
-     * @return 상품 상세 정보, 리뷰 통계, 최신 리뷰 3건을 포함한 응답 DTO
-     * @throws IllegalArgumentException 존재하지 않는 상품 ID일 경우 발생
-     * @throws IllegalStateException    이미 삭제된 상품일 경우 발생
+     * 특정 상품의 상세 정보와 관련 리뷰 통계를 함께 조회합니다.
+     * @param productId 조회할 상품의 고유 ID
+     * @return          상품 정보, 리뷰 평균 평점, 최신 리뷰 3건을 결합한 데이터
+     * @throws NotFoundException     해당 ID의 상품이 DB에 존재하지 않을 경우 발생
+     * @throws IllegalStateException 이미 삭제(Soft Delete)된 상품을 조회하려 할 경우 발생
      */
     @Transactional(readOnly = true)
     public GetProductResponseDto getProduct(Long productId) {
         // 1. 특정 상품 기본 정보 조회 및 검증
-        Product product = productRepository.findById(productId).orElseThrow(() -> new IllegalArgumentException("존재하지 않는 상품입니다."));
+        Product product = productRepository.findById(productId).orElseThrow(() -> new NotFoundException("product with ID " + productId + "not found."));
 
         if(product.isDeleted()) {
-            throw new IllegalStateException("삭제된 상품입니다.");
+            throw new NotFoundException("존재하지 않는 상품 입니다.");
         }
 
         // 2. 리뷰 통계 조회
@@ -99,45 +97,44 @@ public class ProductService {
     }
 
     /**
-     * 기존 상품의 기본 정보(상품명, 카테고리, 가격)를 수정합니다.
-     * @param productId 수정할 상품의 고유 식별자(ID)
-     * @param dto       수정할 데이터(상품명, 카테고리, 가격)를 담은 객체
-     * @return 수정된 상품 정보 응답 DTO
-     * @throws IllegalArgumentException 존재하지 않는 상품 ID인 경우 발생
+     * 기존 상품의 정보(이름, 카테고리, 가격)를 수정합니다.
+     * @param productId 수정할 상품의 고유 ID
+     * @param dto       변경하고자 하는 상품 정보 데이터
+     * @return          수정 완료된 상품의 정보
+     * @throws NotFoundException 수정할 상품이 존재하지 않을 경우 발생
      */
     @Transactional
     public ProductResponseDto updateProductInfo(Long productId, @Valid ProductUpdateInfoDto dto) {
 
-        Product product = productRepository.findById(productId).orElseThrow(() -> new IllegalArgumentException("발견된 상품이 없습니다."));
+        Product product = productRepository.findById(productId).orElseThrow(() -> new NotFoundException("product with ID " + productId + "not found."));
 
         return new ProductResponseDto(product.updateInfo(dto.getProductName(), dto.getCategory(), dto.getPrice()));
     }
 
     /**
-     * 상품의 판매 상태를 수동으로 변경합니다.
-     * @param productId 상태를 변경할 상품의 고유 식별자(ID)
-     * @param dto       변경할 상태 정보를 담은 객체
-     * @return 상태가 변경된 상품 정보 응답 DTO
-     * @throws IllegalArgumentException 존재하지 않는 상품 ID인 경우 발생
+     * 상품의 판매 상태(판매중, 품절 등)를 수동으로 변경합니다.
+     * @param productId 상태를 변경할 상품의 고유 ID
+     * @param dto       변경할 새로운 상태 값 (컨트롤러에서 유효성이 검증된 상태로 전달됨)
+     * @return          상태 변경이 반영된 상품 정보
+     * @throws NotFoundException 대상 상품을 찾을 수 없을 경우 발생
      */
     @Transactional
     public ProductResponseDto updateProductStatus(Long productId, @Valid ProductUpdateStatusDto dto) {
 
-        Product product = productRepository.findById(productId).orElseThrow(() -> new IllegalArgumentException("발견된 상품이 없습니다."));
+        Product product = productRepository.findById(productId).orElseThrow(() -> new NotFoundException("product with ID " + productId + "not found."));
 
         return new ProductResponseDto(product.updateStatus(dto.getStatus()));
     }
 
     /**
-     * 특정 상품을 논리적으로 삭제합니다.
-     * 상품 엔티티의 삭제 상태를 업데이트하여 실제 데이터는 보존하되,
-     * 향후 조회 목록에서는 제외되도록 처리합니다.
-     * @param productId 삭제할 상품의 고유 식별자(ID)
-     * @throws IllegalArgumentException 해당 ID를 가진 상품이 DB에 존재하지 않을 경우 발생
+     * 특정 상품을 논리적으로 삭제(Soft Delete)합니다.
+     * DB에서 데이터를 제거하지 않고, 삭제 플래그를 통해 노출되지 않도록 처리합니다.
+     * @param productId 삭제할 상품의 고유 ID
+     * @throws NotFoundException 삭제할 상품이 존재하지 않을 경우 발생
      */
     @Transactional
     public void deleteProduct(Long productId) {
-        Product product = productRepository.findById(productId).orElseThrow(() -> new IllegalArgumentException("발견된 상품이 없습니다."));
+        Product product = productRepository.findById(productId).orElseThrow(() -> new NotFoundException("product with ID " + productId + "not found."));
 
         product.delete();
     }

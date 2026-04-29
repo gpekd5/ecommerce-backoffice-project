@@ -94,12 +94,15 @@ public class ReviewService {
         long totalCount = reviewRepository.getReviewCnt(productId);
 
 
-        Map<String, Long> ratingDistribution = new HashMap<>();
+        Map<Integer, Long> ratingDistribution = new HashMap<>();
+        for (int i = 1; i <= 5; i++) {
+            ratingDistribution.put(i, 0L);
+        }
 
         List<Object[]> reviews = reviewRepository.getReviewDistribution(productId);
 
         for(Object[] row: reviews) {
-            ratingDistribution.put((String) row[0], (Long) row[1]);
+            ratingDistribution.put((Integer) row[0], (Long) row[1]);
         }
 
         return new ReviewStatsResponseDto(averageRating, totalCount, ratingDistribution);

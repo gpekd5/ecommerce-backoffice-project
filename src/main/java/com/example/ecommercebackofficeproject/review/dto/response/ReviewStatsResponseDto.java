@@ -11,9 +11,9 @@ import java.util.Map;
 @Getter
 public class ReviewStatsResponseDto {
 
-    private double averageRating;                       // 평균평점
-    private long totalCount;                            // 총 리뷰 개수
-    private Map<String, Long> ratingDistribution;       // 별점별 개수
+    private final double averageRating;                       // 평균평점
+    private final long totalCount;                            // 총 리뷰 개수
+    private final Map<Integer, Long> ratingDistribution;       // 별점별 개수
 
     /**
      * 리뷰 통계 DTO를 생성합니다.
@@ -21,7 +21,7 @@ public class ReviewStatsResponseDto {
      * @param totalCount         전체 리뷰 개수
      * @param ratingDistribution 별점별 카운트가 담긴 맵
      */
-    public ReviewStatsResponseDto(double averageRating, long totalCount, Map<String, Long> ratingDistribution) {
+    public ReviewStatsResponseDto(double averageRating, long totalCount, Map<Integer, Long> ratingDistribution) {
         this.averageRating = averageRating;
         this.totalCount = totalCount;
         this.ratingDistribution = ratingDistribution;

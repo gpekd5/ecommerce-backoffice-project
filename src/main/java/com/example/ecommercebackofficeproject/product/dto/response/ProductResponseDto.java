@@ -7,21 +7,24 @@ import lombok.Getter;
 
 import java.time.LocalDateTime;
 
+/**
+ * 상품 정보를 반환하기 위한 공통 응답 DTO 클래스입니다.
+ */
 @Getter
 public class ProductResponseDto {
 
-    private Long productId;             // 상품 고유식별자
-    private String productName;         // 상품명
-    private ProductCategory category;   // 카테고리
-    private Long price;                 // 가격
-    private int stock;                  // 재고
-    private ProductStatus status;       // 상태
-    private LocalDateTime createdAt;    // 등록일
-    private String createdByName;       // 등록 관리자명
+    private final Long productId;             // 상품 고유식별자
+    private final String productName;         // 상품명
+    private final ProductCategory category;   // 카테고리
+    private final Long price;                 // 가격
+    private final int stock;                  // 재고
+    private final ProductStatus status;       // 상태
+    private final LocalDateTime createdAt;    // 등록일
+    private final String createdByName;       // 등록 관리자명
 
     /**
-     * Product 엔티티 객체를 바탕으로 응답용 DTO를 생성합니다.
-     * @param product 변환할 상품 엔티티 객체
+     * Product 엔티티를 응답 DTO로 변환합니다.
+     * @param product 상품 엔티티
      */
     public ProductResponseDto(Product product) {
         this.productId = product.getProductId();
@@ -32,7 +35,7 @@ public class ProductResponseDto {
         this.status = product.getStatus();
         this.createdAt = product.getCreatedAt();
 
-        // 연관관계가 있는 관리자 정보 (관리자 삭제시 해당 관리자가 만든 상품을 어떻게 처리 할지 안정해서 일단 이렇게 작성)
+        // 관리자 탈퇴 여부에 따른 이름 매핑 처리
         if (product.getAdmin().getDeletedAt() == null) {
             this.createdByName = product.getAdmin().getName();
         } else {
