@@ -33,14 +33,8 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
      * @param pageable 페이징 및 정렬 정보
      * @return 필터링된 리뷰 엔티티 페이지
      */
-    @Query("SELECT r FROM Review r " +
-            "JOIN r.customer c " +
-            "JOIN r.product p " +
-            "JOIN r.order o " +
-            "WHERE (:keyword IS NULL OR c.name LIKE %:keyword% OR p.productName LIKE %:keyword%) " +
-            "AND (:rating IS NULL OR r.rating = :rating) AND " +
-            "(r.deletedAt IS NULL)")
-    Page<Review> findAllWithFilters(@Param("keyword") String keyword, @Param("rating") int rating, Pageable pageable);
+    @Query("SELECT r FROM Review r JOIN r.customer c JOIN r.product p JOIN r.order o WHERE (:keyword IS NULL OR c.name LIKE %:keyword% OR p.productName LIKE %:keyword%) AND (:rating IS NULL OR r.rating = :rating) AND (r.deletedAt IS NULL)")
+    Page<Review> findAllWithFilters(@Param("keyword") String keyword, @Param("rating") Integer rating, Pageable pageable);
 
 
     @Query("SELECT AVG(r.rating) FROM Review r JOIN r.product p WHERE p.productId = :productId")

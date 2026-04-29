@@ -32,7 +32,7 @@ public class ReviewController {
      * @return 페이징 정보가 포함된 리뷰 응답 DTO 목록
      */
     @GetMapping("/reviews")
-    public ResponseEntity<Page<GetReviewPageResponseDto>> getReviewList(@RequestParam(required = false) String keyword, @RequestParam(required = false) Integer rating, @PageableDefault(page = 1, size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+    public ResponseEntity<GetReviewPageResponseDto> getReviewList(@RequestParam(required = false) String keyword, @RequestParam(required = false) Integer rating, @PageableDefault(page = 0, size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
         return ResponseEntity.ok(reviewService.getReviewList(keyword, rating, pageable));
     }
 
@@ -41,7 +41,7 @@ public class ReviewController {
      * @param reviewId 조회할 리뷰의 고유 식별자(ID)
      * @return 조회된 리뷰 상세 정보 DTO를 담은 ResponseEntity
      */
-    @GetMapping("/review/{reviewId}")
+    @GetMapping("/reviews/{reviewId}")
     public ResponseEntity<GetReviewResponseDto> getReview(@PathVariable Long reviewId) {
         return ResponseEntity.ok(reviewService.getReview(reviewId));
     }
@@ -53,7 +53,7 @@ public class ReviewController {
      * @param reviewId 삭제할 리뷰의 고유 식별자(ID)
      * @return 성공 시 응답 본문이 없는 ResponseEntity (204 No Content)
      */
-    @DeleteMapping("/review/{reviewId}")
+    @DeleteMapping("/reviews/{reviewId}")
     public ResponseEntity<Void> deleteReview(@PathVariable Long reviewId, @SessionAttribute(name="loginUser") SessionAdminDto sessionAdmin) {
 
         reviewService.deleteReview(reviewId);
