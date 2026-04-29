@@ -37,7 +37,7 @@ public class ProductController {
      * @return 등록된 상품 정보
      */
     @PostMapping("/products")
-    public ResponseEntity<CreateProductResponseDto> saveProduct(@Valid @RequestBody ProductRequestDto dto, @SessionAttribute(name="loginUser") SessionAdminDto sessionAdmin) {
+    public ResponseEntity<CreateProductResponseDto> saveProduct(@Valid @RequestBody ProductRequestDto dto, @RequestAttribute(name="loginUser") SessionAdminDto sessionAdmin) {
         return ResponseEntity.status(HttpStatus.CREATED).body(productService.saveProduct(dto, sessionAdmin.getAdminId()));
     }
 
@@ -74,7 +74,7 @@ public class ProductController {
      * @return 수정이 완료된 상품의 상세 정보 DTO
      */
     @PatchMapping("/products/{productId}")
-    public ResponseEntity<ProductResponseDto> updateProductInfo(@PathVariable Long productId, @Valid @RequestBody ProductUpdateInfoDto dto, @SessionAttribute(name="loginUser") SessionAdminDto sessionAdmin) {
+    public ResponseEntity<ProductResponseDto> updateProductInfo(@PathVariable Long productId, @Valid @RequestBody ProductUpdateInfoDto dto, @RequestAttribute(name="loginUser") SessionAdminDto sessionAdmin) {
         return ResponseEntity.ok(productService.updateProductInfo(productId, dto));
     }
 
@@ -86,7 +86,7 @@ public class ProductController {
      * @return 상태 변경이 완료된 상품의 상세 정보 DTO
      */
     @PatchMapping("/products/{productId}/status")
-    public ResponseEntity<ProductResponseDto> updateProductStatus(@PathVariable Long productId, @Valid @RequestBody ProductUpdateStatusDto dto, @SessionAttribute(name="loginUser") SessionAdminDto sessionAdmin) {
+    public ResponseEntity<ProductResponseDto> updateProductStatus(@PathVariable Long productId, @Valid @RequestBody ProductUpdateStatusDto dto, @RequestAttribute(name="loginUser") SessionAdminDto sessionAdmin) {
         return ResponseEntity.ok(productService.updateProductStatus(productId, dto));
     }
 
