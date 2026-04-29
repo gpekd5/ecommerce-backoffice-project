@@ -12,7 +12,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-/*
+/**
  * Customer Repository :
  *  - 고객 데이터에 대한 DB 접근을 담당
  *
@@ -47,7 +47,7 @@ public interface CustomerRepository extends JpaRepository<Customer, Long>, JpaSp
     )
     Long countOrdersByCustomerId(@Param("customerId") Long customerId);
 
-    /*
+    /**
      * 특정 고객의 총 구매 금액 조회
      *
      * 주문 상태가 CANCELED가 아닌 경우만 합산하며,

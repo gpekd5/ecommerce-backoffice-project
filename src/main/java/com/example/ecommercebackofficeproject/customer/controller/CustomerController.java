@@ -8,6 +8,7 @@ import com.example.ecommercebackofficeproject.customer.dto.request.GetCustomerRe
 import com.example.ecommercebackofficeproject.customer.dto.response.UpdateCustomerResponseDto;
 import com.example.ecommercebackofficeproject.customer.dto.response.UpdateCustomerStatusResponseDto;
 import com.example.ecommercebackofficeproject.customer.service.CustomerService;
+import com.example.ecommercebackofficeproject.global.response.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -30,10 +31,15 @@ public class CustomerController {
      * 페이징 정보가 포함된다.
      */
     @GetMapping("/customers")
-    public ResponseEntity<GetCustomerPageResponseDto> getCustomers(
+    public ResponseEntity<ApiResponse<GetCustomerPageResponseDto>> getCustomers(
             @ModelAttribute GetCustomerRequestDto request
     ) {
-        return ResponseEntity.status(HttpStatus.OK).body(customerService.getCustomers(request));
+        return ResponseEntity.status(HttpStatus.OK).body(
+                ApiResponse.success(
+                        HttpStatus.OK,
+                        "고객 목록 조회를 하였습니다.",
+                        customerService.getCustomers(request)
+                ));
     }
 
     /*
@@ -45,10 +51,15 @@ public class CustomerController {
      * 총 구매 금액이 포함된다.
      */
     @GetMapping("/customers/{customerId}")
-    public ResponseEntity<GetCustomerDetailResponseDto> getCustomer(
+    public ResponseEntity<ApiResponse<GetCustomerDetailResponseDto>> getCustomer(
             @PathVariable Long customerId
     ) {
-        return ResponseEntity.status(HttpStatus.OK).body(customerService.getCustomer(customerId));
+        return ResponseEntity.status(HttpStatus.OK).body(
+                ApiResponse.success(
+                        HttpStatus.OK,
+                        "고객 목록 조회를 하였습니다.",
+                        customerService.getCustomer(customerId)
+                ));
     }
 
     /*
@@ -60,11 +71,16 @@ public class CustomerController {
      * 수정 완료 후 변경된 고객 정보를 응답한다.
      */
     @PatchMapping("/customers/{customerId}")
-    public ResponseEntity<UpdateCustomerResponseDto> updateCustomer(
+    public ResponseEntity<ApiResponse<UpdateCustomerResponseDto>> updateCustomer(
             @PathVariable Long customerId,
             @Valid @RequestBody UpdateCustomerRequestDto request
     ) {
-        return ResponseEntity.status(HttpStatus.OK).body(customerService.updateCustomer(customerId, request));
+        return ResponseEntity.status(HttpStatus.OK).body(
+                ApiResponse.success(
+                        HttpStatus.OK,
+                        "고객 정보 수정을 완료하였습니다.",
+                        customerService.updateCustomer(customerId, request)
+                ));
     }
 
     /*
@@ -76,11 +92,16 @@ public class CustomerController {
      * 변경 완료 후 변경된 상태 정보를 응답한다.
      */
     @PatchMapping("/customers/{customerId}/status")
-    public ResponseEntity<UpdateCustomerStatusResponseDto> updateCustomerStatus(
+    public ResponseEntity<ApiResponse<UpdateCustomerStatusResponseDto>> updateCustomerStatus(
             @PathVariable Long customerId,
             @Valid @RequestBody UpdateCustomerStatusRequestDto request
     ) {
-        return ResponseEntity.status(HttpStatus.OK).body(customerService.updateCustomerStatus(customerId, request));
+        return ResponseEntity.status(HttpStatus.OK).body(
+                ApiResponse.success(
+                        HttpStatus.OK,
+                        "고객 상태 변경을 완료하였습니다.",
+                        customerService.updateCustomerStatus(customerId, request)
+                ));
     }
 
     /*
@@ -92,11 +113,16 @@ public class CustomerController {
      * deletedAt 값을 설정하는 논리 삭제 방식으로 처리한다.
      */
     @DeleteMapping("/customers/{customerId}")
-    public ResponseEntity<Void> deleteCustomer(
+    public ResponseEntity<ApiResponse<Void>> deleteCustomer(
             @PathVariable Long customerId
     ) {
         customerService.deleteCustomer(customerId);
 
-        return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
+        return ResponseEntity.status(HttpStatus.OK).body(
+                ApiResponse.success(
+                        HttpStatus.OK,
+                        "고객 정보 삭제가 되었습니다.",
+                        null
+                ));
     }
 }

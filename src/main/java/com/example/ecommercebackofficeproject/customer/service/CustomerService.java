@@ -5,6 +5,9 @@ import com.example.ecommercebackofficeproject.customer.dto.response.*;
 import com.example.ecommercebackofficeproject.customer.entity.Customer;
 import com.example.ecommercebackofficeproject.customer.repository.CustomerRepository;
 import com.example.ecommercebackofficeproject.customer.type.CustomerStatus;
+import com.example.ecommercebackofficeproject.global.exception.BadRequestException;
+import com.example.ecommercebackofficeproject.global.exception.ConflictException;
+import com.example.ecommercebackofficeproject.global.exception.NotFoundException;
 import jakarta.persistence.criteria.Predicate;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.*;
@@ -79,7 +82,7 @@ public class CustomerService {
     public GetCustomerDetailResponseDto getCustomer(Long customerId) {
 
         Customer customer = customerRepository.findByIdAndDeletedAtIsNull(customerId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 고객입니다."));
+                .orElseThrow(() -> new NotFoundException("존재하지 않는 고객입니다."));
 
         Long totalOrderCount = customerRepository.countOrdersByCustomerId(customer.getId());
         Long totalOrderAmount = customerRepository.sumTotalOrderAmountByCustomerId(customer.getId());
@@ -105,14 +108,14 @@ public class CustomerService {
             UpdateCustomerRequestDto request
     ) {
         Customer customer = customerRepository.findByIdAndDeletedAtIsNull(customerId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 고객입니다."));
+                .orElseThrow(() -> new NotFoundException("존재하지 않는 고객입니다."));
 
         if (customerRepository.existsByEmailAndIdNot(request.getEmail(), customerId)) {
-            throw new IllegalArgumentException("이미 사용 중인 이메일입니다.");
+            throw new ConflictException("이미 사용 중인 이메일입니다.");
         }
 
         if (customerRepository.existsByPhoneAndIdNot(request.getPhone(), customerId)) {
-            throw new IllegalArgumentException("이미 사용 중인 전화번호입니다.");
+            throw new ConflictException("이미 사용 중인 전화번호입니다.");
         }
 
         customer.updateInfo(
@@ -136,12 +139,12 @@ public class CustomerService {
             UpdateCustomerStatusRequestDto request
     ) {
         Customer customer = customerRepository.findByIdAndDeletedAtIsNull(customerId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 고객입니다."));
+                .orElseThrow(() -> new NotFoundException("존재하지 않는 고객입니다."));
 
         CustomerStatus newStatus = parseStatus(request.getStatus());
 
         if (newStatus == null) {
-            throw new IllegalArgumentException("유효하지 않은 상태입니다.");
+            throw new BadRequestException("유효하지 않은 상태입니다.");
         }
 
         customer.changeStatus(newStatus);
@@ -160,7 +163,7 @@ public class CustomerService {
     @Transactional
     public void deleteCustomer(Long customerId) {
         Customer customer = customerRepository.findByIdAndDeletedAtIsNull(customerId)
-                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 고객입니다."));
+                .orElseThrow(() -> new NotFoundException("존재하지 않는 고객입니다."));
 
         customer.delete();
     }
@@ -221,7 +224,7 @@ public class CustomerService {
         try {
             return CustomerStatus.valueOf(status);
         } catch (IllegalArgumentException e) {
-            throw new IllegalArgumentException("유효하지 않은 고객 상태입니다.");
+            throw new BadRequestException("유효하지 않은 고객 상태입니다.");
         }
     }
 
@@ -240,11 +243,11 @@ public class CustomerService {
             String sortDir
     ) {
         if (page < 1) {
-            throw new IllegalArgumentException("페이지 번호는 1 이상이어야 합니다.");
+            throw new BadRequestException("페이지 번호는 1 이상이어야 합니다.");
         }
 
         if (size < 1) {
-            throw new IllegalArgumentException("페이지 크기는 1 이상이어야 합니다.");
+            throw new BadRequestException("페이지 크기는 1 이상이어야 합니다.");
         }
 
         String validatedSortBy = validateSortBy(sortBy);
@@ -273,7 +276,7 @@ public class CustomerService {
 
         return switch (sortBy) {
             case "name", "email", "createdAt" -> sortBy;
-            default -> throw new IllegalArgumentException("유효하지 않은 정렬 기준입니다.");
+            default -> throw new BadRequestException("유효하지 않은 정렬 기준입니다.");
         };
     }
 }
