@@ -70,13 +70,19 @@ public class Product extends BaseEntity {
 
     /**
      * 관리자에 의해 상품 상태를 수동으로 변경합니다.
-     * 변경 후 현재 재고 상황에 맞게 상태를 재검증합니다.
      */
     public Product updateStatus(ProductStatus status) {
-        this.status = status;
+        // 1. 재고 0인데 판매 시작하려는 경우
+        if(this.stock <= 0 && status == ProductStatus.AVAILABLE) {
+            throw new IllegalArgumentException("재고가 없는 상품은 판매 중 상태로 변경할 수 없습니다.");
+        }
 
-        // 관리자가 '판매 중'을 선택해도 재고가 0이면 다시 '품절'로 보호하기 위함
-        this.autoUpdateStatus();
+        // 2. 재고가 있는데 굳이 '품절'로 바꾸려는 경우
+        if(this.stock > 0 && status == ProductStatus.SOLD_OUT) {
+            throw new IllegalArgumentException("재고가 남아있어 품절 상태로 변경할 수 없습니다. 대신 단종을 이용하세요.");
+        }
+
+        this.status = status;
 
         return this;
     }

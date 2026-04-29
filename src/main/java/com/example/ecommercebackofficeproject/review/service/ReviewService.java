@@ -85,11 +85,10 @@ public class ReviewService {
      */
     public ReviewStatsResponseDto getReviewStat(Long productId) {
 
-        Object[] result = reviewRepository.getBasicStats(productId);
+        Double avg = reviewRepository.getAvgRating(productId);
+        double averageRating = (avg != null) ? avg : 0.0;
 
-        double averageRating = (result[0] != null) ? (double) result[0] : 0.0;
-
-        long totalCount = (long) result[1];
+        long totalCount = reviewRepository.getReviewCnt(productId);
 
 
         Map<String, Long> ratingDistribution = new HashMap<>();

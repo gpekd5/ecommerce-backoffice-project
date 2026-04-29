@@ -11,7 +11,6 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
-import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -37,19 +36,13 @@ public interface ProductRepository extends JpaRepository<Product, Long> {
      * @param pageable 페이징 및 정렬 정보
      * @return 필터링 조건에 부합하는 페이징된 상품 엔티티 목록
      */
-    @Query("SELECT p FROM Product p WHERE" +
-            "(:keyword IS NULL OR p.productName LIKE %:keyword%) AND " +
-            "(:category IS NULL OR p.category = :category) AND " +
-            "(:status IS NULL OR p.status = :status) AND " +
-            "(p.deletedAt IS NULL)")
+    @Query("SELECT p FROM Product p WHERE (:keyword IS NULL OR p.productName LIKE %:keyword%) AND (:category IS NULL OR p.category = :category) AND (:status IS NULL OR p.status = :status) AND (p.deletedAt IS NULL)")
     Page<Product> findAllWithFilters(@Param("keyword") String keyword, @Param("category") ProductCategory category, @Param("status") ProductStatus status, Pageable pageable);
 
     Long countByStockLessThanEqual(Integer stock);
 
     Long countByStock(Integer stock);
 
-    @Query("SELECT p.category AS category, COUNT(p) AS count " +
-            "FROM Product p " +
-            "GROUP BY p.category")
+    @Query("SELECT p.category AS category, COUNT(p) AS count FROM Product p GROUP BY p.category")
     List<ProductCategoryCountDto> countGroupByCategory();
 }

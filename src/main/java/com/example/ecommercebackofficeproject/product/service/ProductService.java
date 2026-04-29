@@ -3,9 +3,12 @@ package com.example.ecommercebackofficeproject.product.service;
 import com.example.ecommercebackofficeproject.admin.entity.Admin;
 import com.example.ecommercebackofficeproject.admin.repository.AdminRepository;
 import com.example.ecommercebackofficeproject.product.dto.request.ProductRequestDto;
+import com.example.ecommercebackofficeproject.product.dto.request.ProductUpdateInfoDto;
+import com.example.ecommercebackofficeproject.product.dto.request.ProductUpdateStatusDto;
 import com.example.ecommercebackofficeproject.product.dto.response.CreateProductResponseDto;
 import com.example.ecommercebackofficeproject.product.dto.response.GetProductPageResponseDto;
 import com.example.ecommercebackofficeproject.product.dto.response.GetProductResponseDto;
+import com.example.ecommercebackofficeproject.product.dto.response.ProductResponseDto;
 import com.example.ecommercebackofficeproject.product.entity.Product;
 import com.example.ecommercebackofficeproject.product.repository.ProductRepository;
 import com.example.ecommercebackofficeproject.product.type.ProductCategory;
@@ -58,8 +61,12 @@ public class ProductService {
      * @param pageable 페이징 및 정렬 정보 (Spring이 자동 생성)
      */
     @Transactional(readOnly = true)
-    public Page<GetProductPageResponseDto> getProductList(String keyword, ProductCategory category, ProductStatus status, Pageable pageable) {
-        return productRepository.findAllWithFilters(keyword, category, status, pageable).map(GetProductPageResponseDto::new);
+    public GetProductPageResponseDto getProductList(String keyword, ProductCategory category, ProductStatus status, Pageable pageable) {
+        // 1. DB에서 페이징 처리된 엔티티 묶음을 가져옵니다.
+        Page<Product> productPage = productRepository.findAllWithFilters(keyword, category, status, pageable);
+
+        // 2. 생성자를 통해 요구하신 5가지 필드(content, page정보들)만 딱 생성해서 반환합니다.
+        return new GetProductPageResponseDto(productPage);
     }
 
     /**
@@ -99,11 +106,11 @@ public class ProductService {
      * @throws IllegalArgumentException 존재하지 않는 상품 ID인 경우 발생
      */
     @Transactional
-    public GetProductResponseDto updateProductInfo(Long productId, @Valid ProductRequestDto dto) {
+    public ProductResponseDto updateProductInfo(Long productId, @Valid ProductUpdateInfoDto dto) {
 
         Product product = productRepository.findById(productId).orElseThrow(() -> new IllegalArgumentException("발견된 상품이 없습니다."));
 
-        return new GetProductResponseDto(product.updateInfo(dto.getProductName(), dto.getCategory(), dto.getPrice()));
+        return new ProductResponseDto(product.updateInfo(dto.getProductName(), dto.getCategory(), dto.getPrice()));
     }
 
     /**
@@ -114,11 +121,11 @@ public class ProductService {
      * @throws IllegalArgumentException 존재하지 않는 상품 ID인 경우 발생
      */
     @Transactional
-    public GetProductResponseDto updateProductStatus(Long productId, @Valid ProductRequestDto dto) {
+    public ProductResponseDto updateProductStatus(Long productId, @Valid ProductUpdateStatusDto dto) {
 
         Product product = productRepository.findById(productId).orElseThrow(() -> new IllegalArgumentException("발견된 상품이 없습니다."));
 
-        return new GetProductResponseDto(product.updateStatus(dto.getStatus()));
+        return new ProductResponseDto(product.updateStatus(dto.getStatus()));
     }
 
     /**
