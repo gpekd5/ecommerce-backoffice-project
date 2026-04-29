@@ -5,6 +5,9 @@ import lombok.Getter;
 
 import java.time.LocalDateTime;
 
+/**
+ * 리뷰 정보를 반환하기 위한 응답 DTO 클래스입니다.
+ */
 @Getter
 public class ReviewResponseDto {
 
@@ -17,8 +20,9 @@ public class ReviewResponseDto {
     private LocalDateTime createdAt;    // 작성일
 
     /**
-     * Review 엔티티 객체를 바탕으로 응답용 DTO를 생성합니다.
-     * @param review 변환할 상품 엔티티 객체
+     * Review 엔티티를 응답 DTO로 변환합니다.
+     *
+     * @param review 리뷰 엔티티
      */
     public ReviewResponseDto(Review review) {
         this.reviewId = review.getReviewId();

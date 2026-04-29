@@ -1,6 +1,7 @@
 package com.example.ecommercebackofficeproject.review.controller;
 
 import com.example.ecommercebackofficeproject.auth.dto.SessionAdminDto;
+import com.example.ecommercebackofficeproject.global.response.ApiResponse;
 import com.example.ecommercebackofficeproject.review.dto.response.GetReviewPageResponseDto;
 import com.example.ecommercebackofficeproject.review.dto.response.GetReviewResponseDto;
 import com.example.ecommercebackofficeproject.review.service.ReviewService;
@@ -9,11 +10,12 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 /**
- * 리뷰 관리를 위한 API 컨트롤러입니다.
+ * 리뷰 관련 요청을 처리하는 API 컨트롤러 클래스입니다.
  */
 @RestController
 @RequiredArgsConstructor
@@ -22,42 +24,41 @@ public class ReviewController {
     private final ReviewService reviewService;
 
     /**
-     * 리뷰 목록을 페이징 처리하여 조회합니다.
-     * 키워드(고객명, 상품명) 검색과 평점 필터링을 지원하며,
-     * 페이징 및 정렬 조건(평점순, 작성일순 등)을 적용하여 결과를 반환합니다.
+     * 리뷰 목록을 조건에 따라 페이징 조회합니다.
+     * 키워드 검색(고객명, 상품명)과 평점 필터링을 지원합니다.
      *
-     * @param keyword  검색할 키워드 (고객명 또는 상품명, 선택 사항)
-     * @param rating   조회할 평점 필터 (1~5, 선택 사항)
-     * @param pageable 페이징 및 정렬 정보 (page, size, sort)
-     * @return 페이징 정보가 포함된 리뷰 응답 DTO 목록
+     * @param keyword  검색 키워드 (선택)
+     * @param rating   조회할 평점 (선택)
+     * @param pageable 페이징 및 정렬 정보
+     * @return 리뷰 목록 페이징 응답 DTO
      */
     @GetMapping("/reviews")
-    public ResponseEntity<GetReviewPageResponseDto> getReviewList(@RequestParam(required = false) String keyword, @RequestParam(required = false) Integer rating, @PageableDefault(page = 0, size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
-        return ResponseEntity.ok(reviewService.getReviewList(keyword, rating, pageable));
+    public ResponseEntity<ApiResponse<GetReviewPageResponseDto>> getReviewList(@RequestParam(required = false) String keyword, @RequestParam(required = false) Integer rating, @PageableDefault(page = 0, size = 10, sort = "createdAt", direction = Sort.Direction.DESC) Pageable pageable) {
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(HttpStatus.OK, "리뷰 전체 목록을 조회했습니다.", reviewService.getReviewList(keyword, rating, pageable)));
     }
 
     /**
      * 특정 리뷰의 상세 정보를 조회합니다.
-     * @param reviewId 조회할 리뷰의 고유 식별자(ID)
-     * @return 조회된 리뷰 상세 정보 DTO를 담은 ResponseEntity
+     *
+     * @param reviewId 리뷰 고유 식별자
+     * @return 리뷰 상세 정보 DTO
      */
     @GetMapping("/reviews/{reviewId}")
-    public ResponseEntity<GetReviewResponseDto> getReview(@PathVariable Long reviewId) {
-        return ResponseEntity.ok(reviewService.getReview(reviewId));
+    public ResponseEntity<ApiResponse<GetReviewResponseDto>> getReview(@PathVariable Long reviewId) {
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(HttpStatus.OK, "특정 리뷰를 조회했습니다.", reviewService.getReview(reviewId)));
     }
 
     /**
-     * 특정 리뷰를 삭제 처리합니다.
-     * 실제 데이터베이스에서 레코드를 삭제하지 않고, 삭제 일시(deletedAt)를 기록하여
-     * 논리적으로 삭제(Soft Delete) 상태로 변경합니다.
-     * @param reviewId 삭제할 리뷰의 고유 식별자(ID)
-     * @return 성공 시 응답 본문이 없는 ResponseEntity (204 No Content)
+     * 리뷰를 논리적으로 삭제(Soft Delete)합니다.
+     *
+     * @param reviewId 삭제할 리뷰 식별자
+     * @param sessionAdmin 현재 로그인한 관리자 정보
+     * @return 성공 메시지
      */
     @DeleteMapping("/reviews/{reviewId}")
-    public ResponseEntity<Void> deleteReview(@PathVariable Long reviewId, @RequestAttribute(name="loginUser") SessionAdminDto sessionAdmin) {
-
-        reviewService.deleteReview(reviewId);
-
-        return ResponseEntity.noContent().build();
+    public ResponseEntity<ApiResponse<Void>> deleteReview(@PathVariable Long reviewId, @RequestAttribute(name="loginUser") SessionAdminDto sessionAdmin) {
+        reviewService.deleteReview(sessionAdmin, reviewId);
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(HttpStatus.OK, "리뷰가 삭제되었습니다.", null));
     }
+
 }

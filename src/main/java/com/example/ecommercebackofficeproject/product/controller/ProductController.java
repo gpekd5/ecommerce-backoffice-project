@@ -40,7 +40,7 @@ public class ProductController {
      */
     @PostMapping("/products")
     public ResponseEntity<ApiResponse<CreateProductResponseDto>> saveProduct(@Valid @RequestBody ProductRequestDto dto, @RequestAttribute(name="loginUser") SessionAdminDto sessionAdmin) {
-        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(HttpStatus.CREATED, "신규 상품을 등록했습니다.", productService.saveProduct(dto, sessionAdmin.getAdminId())));
+        return ResponseEntity.status(HttpStatus.CREATED).body(ApiResponse.success(HttpStatus.CREATED, "신규 상품을 등록했습니다.", productService.saveProduct(dto, sessionAdmin)));
     }
 
     /**
@@ -76,7 +76,7 @@ public class ProductController {
      */
     @PatchMapping("/products/{productId}")
     public ResponseEntity<ApiResponse<ProductResponseDto>> updateProductInfo(@PathVariable Long productId, @Valid @RequestBody ProductUpdateInfoDto dto, @RequestAttribute(name="loginUser") SessionAdminDto sessionAdmin) {
-        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(HttpStatus.OK, "특정 상품의 기본정보를 수정했습니다.", productService.updateProductInfo(productId, dto)));
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(HttpStatus.OK, "특정 상품의 기본정보를 수정했습니다.", productService.updateProductInfo(sessionAdmin, productId, dto)));
     }
 
     /**
@@ -88,18 +88,19 @@ public class ProductController {
      */
     @PatchMapping("/products/{productId}/status")
     public ResponseEntity<ApiResponse<ProductResponseDto>> updateProductStatus(@PathVariable Long productId, @Valid @RequestBody ProductUpdateStatusDto dto, @RequestAttribute(name="loginUser") SessionAdminDto sessionAdmin) {
-        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(HttpStatus.OK, "판매상태를 변경했습니다.", productService.updateProductStatus(productId, dto)));
+        return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(HttpStatus.OK, "판매상태를 변경했습니다.", productService.updateProductStatus(sessionAdmin, productId, dto)));
     }
 
     /**
      * 특정 상품을 논리적으로 삭제(Soft Delete)합니다.
      * 데이터베이스에서 레코드를 삭제하지 않고 deletedAt 일시를 기록합니다.
      * @param productId 삭제할 상품의 ID
+     * @param sessionAdmin 인증된 관리자 정보 (삭제 권한 확인용)
      * @return 삭제 완료 메시지
      */
     @DeleteMapping("/products/{productId}")
-    public ResponseEntity<ApiResponse<Void>> deleteProduct(@PathVariable Long productId) {
-        productService.deleteProduct(productId);
+    public ResponseEntity<ApiResponse<Void>> deleteProduct(@PathVariable Long productId, @RequestAttribute(name="loginUser") SessionAdminDto sessionAdmin) {
+        productService.deleteProduct(sessionAdmin, productId);
         return ResponseEntity.status(HttpStatus.OK).body(ApiResponse.success(HttpStatus.OK, "상품 정보가 삭제되었습니다.", null));
     }
 }

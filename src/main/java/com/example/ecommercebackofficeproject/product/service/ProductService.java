@@ -2,7 +2,10 @@ package com.example.ecommercebackofficeproject.product.service;
 
 import com.example.ecommercebackofficeproject.admin.entity.Admin;
 import com.example.ecommercebackofficeproject.admin.repository.AdminRepository;
+import com.example.ecommercebackofficeproject.admin.type.AdminRole;
+import com.example.ecommercebackofficeproject.auth.dto.SessionAdminDto;
 import com.example.ecommercebackofficeproject.global.exception.NotFoundException;
+import com.example.ecommercebackofficeproject.global.exception.UnauthorizedException;
 import com.example.ecommercebackofficeproject.product.dto.request.ProductRequestDto;
 import com.example.ecommercebackofficeproject.product.dto.request.ProductUpdateInfoDto;
 import com.example.ecommercebackofficeproject.product.dto.request.ProductUpdateStatusDto;
@@ -41,14 +44,19 @@ public class ProductService {
     /**
      * 새로운 상품을 시스템에 등록합니다.
      * @param dto 상품 등록 정보 (상품명, 가격, 재고, 카테고리 등)
-     * @param id  JWT를 통해 인증된 관리자의 고유 식별자
+     * @param sessionAdmin  신규 등록하려는 관리자 로그인정보
      * @return    등록 완료된 상품의 상세 데이터
+     * @throws UnauthorizedException 삭제하려는 관리자에게 권한이 없는 경우 발생
      * @throws NotFoundException 관리자 ID가 유효하지 않을 경우 발생
      */
     @Transactional
-    public CreateProductResponseDto saveProduct(@Valid ProductRequestDto dto, Long id) {
+    public CreateProductResponseDto saveProduct(@Valid ProductRequestDto dto, SessionAdminDto sessionAdmin) {
 
-        Admin admin = adminRepository.findById(id).orElseThrow(() -> new NotFoundException("admin with ID " + id + "not found."));
+        if(sessionAdmin.getAdminRole().equals(AdminRole.CS.name())) {
+            throw new UnauthorizedException("해당 권한을 가지고 있지 않습니다.");
+        }
+
+        Admin admin = adminRepository.findById(sessionAdmin.getAdminId()).orElseThrow(() -> new NotFoundException("admin with ID " + sessionAdmin.getAdminId() + "not found."));
 
         return new CreateProductResponseDto(productRepository.save(dto.toEntity(admin)));
     }
@@ -98,13 +106,20 @@ public class ProductService {
 
     /**
      * 기존 상품의 정보(이름, 카테고리, 가격)를 수정합니다.
-     * @param productId 수정할 상품의 고유 ID
-     * @param dto       변경하고자 하는 상품 정보 데이터
-     * @return          수정 완료된 상품의 정보
+     *
+     * @param sessionAdmin 수정하려는 관리자 로그인정보
+     * @param productId    수정할 상품의 고유 ID
+     * @param dto          변경하고자 하는 상품 정보 데이터
+     * @return 수정 완료된 상품의 정보
+     * @throws UnauthorizedException 수정하려는 관리자에게 권한이 없는 경우 발생
      * @throws NotFoundException 수정할 상품이 존재하지 않을 경우 발생
      */
     @Transactional
-    public ProductResponseDto updateProductInfo(Long productId, @Valid ProductUpdateInfoDto dto) {
+    public ProductResponseDto updateProductInfo(SessionAdminDto sessionAdmin, Long productId, @Valid ProductUpdateInfoDto dto) {
+
+        if(sessionAdmin.getAdminRole().equals(AdminRole.CS.name())) {
+            throw new UnauthorizedException("해당 권한을 가지고 있지 않습니다.");
+        }
 
         Product product = productRepository.findById(productId).orElseThrow(() -> new NotFoundException("product with ID " + productId + "not found."));
 
@@ -113,13 +128,20 @@ public class ProductService {
 
     /**
      * 상품의 판매 상태(판매중, 품절 등)를 수동으로 변경합니다.
-     * @param productId 상태를 변경할 상품의 고유 ID
-     * @param dto       변경할 새로운 상태 값 (컨트롤러에서 유효성이 검증된 상태로 전달됨)
-     * @return          상태 변경이 반영된 상품 정보
+     *
+     * @param sessionAdmin 수정하려는 관리자 로그인정보
+     * @param productId    상태를 변경할 상품의 고유 ID
+     * @param dto          변경할 새로운 상태 값 (컨트롤러에서 유효성이 검증된 상태로 전달됨)
+     * @return 상태 변경이 반영된 상품 정보
+     * @throws UnauthorizedException 수정하려는 관리자에게 권한이 없는 경우 발생
      * @throws NotFoundException 대상 상품을 찾을 수 없을 경우 발생
      */
     @Transactional
-    public ProductResponseDto updateProductStatus(Long productId, @Valid ProductUpdateStatusDto dto) {
+    public ProductResponseDto updateProductStatus(SessionAdminDto sessionAdmin, Long productId, @Valid ProductUpdateStatusDto dto) {
+
+        if(sessionAdmin.getAdminRole().equals(AdminRole.CS.name())) {
+            throw new UnauthorizedException("해당 권한을 가지고 있지 않습니다.");
+        }
 
         Product product = productRepository.findById(productId).orElseThrow(() -> new NotFoundException("product with ID " + productId + "not found."));
 
@@ -129,11 +151,19 @@ public class ProductService {
     /**
      * 특정 상품을 논리적으로 삭제(Soft Delete)합니다.
      * DB에서 데이터를 제거하지 않고, 삭제 플래그를 통해 노출되지 않도록 처리합니다.
-     * @param productId 삭제할 상품의 고유 ID
+     *
+     * @param sessionAdmin 삭제를 진행하려는 관리자 로그인정보
+     * @param productId    삭제할 상품의 고유 ID
+     * @throws UnauthorizedException 삭제하려는 관리자에게 권한이 없는 경우 발생
      * @throws NotFoundException 삭제할 상품이 존재하지 않을 경우 발생
      */
     @Transactional
-    public void deleteProduct(Long productId) {
+    public void deleteProduct(SessionAdminDto sessionAdmin, Long productId) {
+
+        if(sessionAdmin.getAdminRole().equals(AdminRole.CS.name())) {
+            throw new UnauthorizedException("해당 권한을 가지고 있지 않습니다.");
+        }
+
         Product product = productRepository.findById(productId).orElseThrow(() -> new NotFoundException("product with ID " + productId + "not found."));
 
         product.delete();

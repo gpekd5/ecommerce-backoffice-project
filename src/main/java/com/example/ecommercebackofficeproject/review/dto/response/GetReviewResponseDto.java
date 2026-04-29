@@ -20,7 +20,7 @@ public class GetReviewResponseDto {
 
     /**
      * Review 엔티티 객체를 바탕으로 응답용 DTO를 생성합니다.
-     * @param review 변환할 상품 엔티티 객체
+     * @param review 변환할 리뷰 엔티티 객체
      */
     public GetReviewResponseDto(Review review) {
         this.productName = review.getProduct().getProductName();
