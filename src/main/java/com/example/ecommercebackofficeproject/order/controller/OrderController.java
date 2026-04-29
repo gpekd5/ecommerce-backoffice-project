@@ -23,7 +23,7 @@ public class OrderController {
      * 새로운 주문을 생성합니다.
      *
      * @param sessionAdminDto 세션에 저장된 로그인 관리자 정보
-     * @param request 주문 생성 요청 데이터
+     * @param request         주문 생성 요청 데이터
      * @return 생성된 주문 정보
      */
     @PostMapping
@@ -37,7 +37,7 @@ public class OrderController {
      * 특정 주문의 상세 정보를 조회합니다.
      *
      * @param sessionAdminDto 세션에 저장된 로그인 관리자 정보
-     * @param orderId 조회할 주문 ID
+     * @param orderId         조회할 주문 ID
      * @return 주문 상세 정보
      */
     @GetMapping("/{orderId}")
@@ -55,7 +55,7 @@ public class OrderController {
      * @return 주문 목록 조회 결과
      */
     @GetMapping
-    public ResponseEntity<GetListOrderResponseDto> getListOrder(GetOrderRequestParamDto requestParam) {
+    public ResponseEntity<GetListOrderResponseDto> getListOrder(@ModelAttribute GetOrderRequestParamDto requestParam) {
         GetListOrderResponseDto results = orderService.getListOrder(requestParam);
         return ResponseEntity.status(HttpStatus.OK).body(results);
     }
@@ -65,8 +65,8 @@ public class OrderController {
      * (예: PREPARING → SHIPPING → DELIVERED)
      *
      * @param sessionAdminDto 세션에 저장된 로그인 관리자 정보
-     * @param orderId 상태를 변경할 주문 ID
-     * @param request 변경할 상태 정보
+     * @param orderId         상태를 변경할 주문 ID
+     * @param request         변경할 상태 정보
      * @return 변경된 주문 정보
      */
     @PatchMapping("/{orderId}/status")
@@ -81,8 +81,8 @@ public class OrderController {
      * 주문을 취소합니다.
      *
      * @param sessionAdminDto 세션에 저장된 로그인 관리자 정보
-     * @param orderId 취소할 주문 ID
-     * @param request 주문 취소 사유 및 정보
+     * @param orderId         취소할 주문 ID
+     * @param request         주문 취소 사유 및 정보
      * @return 취소된 주문 정보
      */
     @PatchMapping("/{orderId}")
