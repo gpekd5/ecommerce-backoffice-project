@@ -67,7 +67,7 @@ public class OrderService {
         if (request.getQuantity() > product.getStock()) {
             throw new BadRequestException("상품 재고가 부족합니다.");
         }
-        if (request.getQuantity() > 0) {
+        if (request.getQuantity() < 1) {
             throw new BadRequestException("주문 수량은 1개 이상이어야 합니다.");
         }
 
@@ -457,9 +457,6 @@ public class OrderService {
      * @throws BadRequestException 페이지 크기가 1보다 작은 경우
      */
     private int validateSize(Integer size) {
-        if (size == null) {
-            return 10;
-        }
         if (size < 1) {
             throw new BadRequestException("페이지당 개수는 1 이상이어야 합니다.");
         }

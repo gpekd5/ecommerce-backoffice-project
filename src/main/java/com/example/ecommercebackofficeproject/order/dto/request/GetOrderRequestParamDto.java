@@ -1,14 +1,15 @@
 package com.example.ecommercebackofficeproject.order.dto.request;
 
-import com.example.ecommercebackofficeproject.order.type.OrderStatus;
 import lombok.Getter;
+import lombok.Setter;
 
+@Setter
 @Getter
 public class GetOrderRequestParamDto {
-    String keyword;
-    Integer page = 1;
-    Integer size = 10;
-    String sortBy = "orderedAt";
-    String sortDirection = "DESC";
-    String orderStatus;
+    private String keyword;
+    private Integer page = 1;
+    private Integer size = 10;
+    private String sortBy = "orderedAt";
+    private String sortDirection = "DESC";
+    private String orderStatus;
 }
