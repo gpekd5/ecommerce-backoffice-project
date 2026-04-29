@@ -73,7 +73,7 @@ public class AdminController {
      */
     @GetMapping
     public ResponseEntity<ApiResponse<GetAdminsPageResponseDto>> getAdmins(
-            @SessionAttribute(name = "loginUser") SessionAdminDto sessionAdmin,
+            @RequestAttribute(name = "loginUser") SessionAdminDto sessionAdmin,
             @RequestParam(required = false) String keyword,
             @RequestParam(defaultValue = "1") int page,
             @RequestParam(defaultValue = "10") int size,
@@ -110,7 +110,7 @@ public class AdminController {
      */
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<GetAdminResponseDto>> findById(
-            @SessionAttribute(name = "loginUser") SessionAdminDto sessionAdmin,
+            @RequestAttribute(name = "loginUser") SessionAdminDto sessionAdmin,
             @PathVariable Long id
     ) {
         return ResponseEntity.status(HttpStatus.OK).body(
@@ -134,7 +134,7 @@ public class AdminController {
      */
     @PatchMapping("/{id}")
     public ResponseEntity<ApiResponse<UpdateAdminResponseDto>> updateAdminInfo(
-            @SessionAttribute(name = "loginUser") SessionAdminDto sessionAdmin,
+            @RequestAttribute(name = "loginUser") SessionAdminDto sessionAdmin,
             @PathVariable Long id,
             @Valid @RequestBody UpdateAdminRequestDto request
     ) {
@@ -159,7 +159,7 @@ public class AdminController {
      */
     @PatchMapping("/{id}/role")
     public ResponseEntity<ApiResponse<UpdateAdminRoleResponseDto>> updateAdminRole(
-            @SessionAttribute(name = "loginUser") SessionAdminDto sessionAdmin,
+            @RequestAttribute(name = "loginUser") SessionAdminDto sessionAdmin,
             @PathVariable Long id,
             @Valid @RequestBody UpdateAdminRoleRequestDto request
     ) {
@@ -184,7 +184,7 @@ public class AdminController {
      */
     @PatchMapping("/{id}/status")
         public ResponseEntity<ApiResponse<UpdateAdminStatusResponseDto>> updateAdminStatus(
-            @SessionAttribute(name = "loginUser") SessionAdminDto sessionAdmin,
+            @RequestAttribute(name = "loginUser") SessionAdminDto sessionAdmin,
             @PathVariable Long id,
             @Valid @RequestBody UpdateAdminStatusRequestDto request
     ) {
@@ -208,7 +208,7 @@ public class AdminController {
      */
     @PatchMapping("/{id}/approve")
     public ResponseEntity<ApiResponse<UpdateAdminApproveResponseDto>> approve(
-            @SessionAttribute(name = "loginUser") SessionAdminDto sessionAdmin,
+            @RequestAttribute(name = "loginUser") SessionAdminDto sessionAdmin,
             @PathVariable Long id
     ) {
         return ResponseEntity.status(HttpStatus.OK).body(
@@ -232,7 +232,7 @@ public class AdminController {
      */
     @PatchMapping("/{id}/reject")
     public ResponseEntity<ApiResponse<UpdateAdminRejectResponseDto>> reject(
-            @SessionAttribute(name = "loginUser") SessionAdminDto sessionAdmin,
+            @RequestAttribute(name = "loginUser") SessionAdminDto sessionAdmin,
             @PathVariable Long id,
             @Valid @RequestBody UpdateAdminRejectRequestDto request
     ) {
@@ -256,7 +256,7 @@ public class AdminController {
      */
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> delete(
-            @SessionAttribute(name = "loginUser") SessionAdminDto sessionAdmin,
+            @RequestAttribute(name = "loginUser") SessionAdminDto sessionAdmin,
             @PathVariable Long id
     ) {
         adminService.delete(sessionAdmin, id);
@@ -278,7 +278,7 @@ public class AdminController {
      * @return 내 프로필 조회 응답 DTO
      */
     @GetMapping("/me")
-    public ResponseEntity<ApiResponse<MeProfileResponseDto>> getProfile(@SessionAttribute(name = "loginUser") SessionAdminDto sessionAdmin) {
+    public ResponseEntity<ApiResponse<MeProfileResponseDto>> getProfile(@RequestAttribute(name = "loginUser") SessionAdminDto sessionAdmin) {
         return ResponseEntity.status(HttpStatus.OK).body(
                 ApiResponse.success(
                         HttpStatus.OK,
@@ -299,7 +299,7 @@ public class AdminController {
      */
     @PatchMapping("/me")
     public ResponseEntity<ApiResponse<MeProfileResponseDto>> updateProfile(
-            @SessionAttribute(name = "loginUser") SessionAdminDto sessionAdmin,
+            @RequestAttribute(name = "loginUser") SessionAdminDto sessionAdmin,
             @Valid @RequestBody UpdateAdminRequestDto request
     ) {
         return ResponseEntity.status(HttpStatus.OK).body(
@@ -322,7 +322,7 @@ public class AdminController {
      */
     @PatchMapping("/me/password")
     public ResponseEntity<ApiResponse<Void>> updatePassword(
-            @SessionAttribute(name = "loginUser") SessionAdminDto sessionAdminDto,
+            @RequestAttribute(name = "loginUser") SessionAdminDto sessionAdminDto,
             @Valid @RequestBody UpdatePasswordRequestDto request
     ) {
         adminService.updatePassword(sessionAdminDto, request);

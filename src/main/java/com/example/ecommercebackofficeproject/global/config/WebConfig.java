@@ -1,6 +1,7 @@
 package com.example.ecommercebackofficeproject.global.config;
 
-import com.example.ecommercebackofficeproject.global.Interceptor.LoginCheckInterceptor;
+import com.example.ecommercebackofficeproject.auth.jwt.JwtFilter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -11,7 +12,10 @@ import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
  * Spring MVC의 기능을 확장하거나 커스터마이징합니다.
  */
 @Configuration
+@RequiredArgsConstructor
 public class WebConfig implements WebMvcConfigurer {
+
+    private final JwtFilter jwtFilter;
 
     /**
      * 애플리케이션에 인터셉터를 등록합니다.
@@ -23,7 +27,7 @@ public class WebConfig implements WebMvcConfigurer {
      */
     @Override
     public void addInterceptors(InterceptorRegistry registry) {
-        registry.addInterceptor(new LoginCheckInterceptor())
+        registry.addInterceptor(jwtFilter)
                 .order(1) // 우선순위
                 .addPathPatterns("/**") // 모든 경로에 적용하되
                 .excludePathPatterns("/admins/login", "/admins/signup"); // 로그인, 회원가입 등은 제외

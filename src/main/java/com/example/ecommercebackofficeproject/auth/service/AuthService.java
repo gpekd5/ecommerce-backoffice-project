@@ -3,7 +3,9 @@ package com.example.ecommercebackofficeproject.auth.service;
 import com.example.ecommercebackofficeproject.admin.entity.Admin;
 import com.example.ecommercebackofficeproject.admin.repository.AdminRepository;
 import com.example.ecommercebackofficeproject.auth.dto.LoginRequestDto;
+import com.example.ecommercebackofficeproject.auth.dto.LoginResponseDto;
 import com.example.ecommercebackofficeproject.auth.dto.SessionAdminDto;
+import com.example.ecommercebackofficeproject.auth.jwt.JwtProvider;
 import com.example.ecommercebackofficeproject.global.exception.ForbiddenException;
 import com.example.ecommercebackofficeproject.global.exception.UnauthorizedException;
 import com.example.ecommercebackofficeproject.global.security.PasswordEncoder;
@@ -30,6 +32,8 @@ public class AuthService {
      */
     private final PasswordEncoder passwordEncoder;
 
+    private final JwtProvider jwtProvider;
+
     /**
      * 관리자 로그인 처리.
      *
@@ -40,7 +44,7 @@ public class AuthService {
      * @return 세션 저장용 관리자 DTO
      */
     @Transactional(readOnly = true)
-    public SessionAdminDto login(LoginRequestDto request) {
+    public LoginResponseDto login(LoginRequestDto request) {
 
         Admin admin = adminRepository.findByEmailAndDeletedAtIsNull(request.getEmail())
                 .orElseThrow(() -> new UnauthorizedException("이메일 또는 비밀번호가 일치하지 않습니다."));
@@ -51,7 +55,11 @@ public class AuthService {
 
         validateAdminStatus(admin);
 
-        return SessionAdminDto.from(admin);
+        SessionAdminDto sessionAdmin = SessionAdminDto.from(admin);
+
+        String accessToken = jwtProvider.creatToken(sessionAdmin);
+
+        return new LoginResponseDto(accessToken);
     }
 
     /**
