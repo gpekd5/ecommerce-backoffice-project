@@ -1,5 +1,6 @@
 package com.example.ecommercebackofficeproject.review.repository;
 
+import com.example.ecommercebackofficeproject.dashboard.dto.ReviewRatingCountDto;
 import com.example.ecommercebackofficeproject.review.entity.Review;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -8,6 +9,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import java.util.Arrays;
 import java.util.List;
 
 /**
@@ -77,4 +79,14 @@ public interface ReviewRepository extends JpaRepository<Review, Long> {
      */
     @Query("SELECT r FROM Review r JOIN FETCH r.customer c WHERE r.product.productId = :productId ORDER BY r.createdAt DESC")
     List<Review> findRecentReviewTop3(@Param("productId") Long productId, Pageable pageable);
+
+    @Query("SELECT COALESCE(AVG(r.rating), 0) FROM Review r")
+    Double findAverageRating();
+
+    @Query("SELECT r.rating AS rating, COUNT(r) AS count " +
+            "FROM Review r " +
+            "WHERE r.deletedAt IS NULL " +
+            "GROUP BY r.rating " +
+            "ORDER BY r.rating ASC")
+    List<ReviewRatingCountDto> countGroupByRating();
 }

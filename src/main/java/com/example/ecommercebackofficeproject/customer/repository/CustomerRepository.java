@@ -2,11 +2,14 @@ package com.example.ecommercebackofficeproject.customer.repository;
 
 import com.example.ecommercebackofficeproject.customer.entity.Customer;
 import com.example.ecommercebackofficeproject.customer.type.CustomerStatus;
+import com.example.ecommercebackofficeproject.dashboard.dto.CustomerStatusCountDto;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Optional;
 
 /*
@@ -84,4 +87,11 @@ public interface CustomerRepository extends JpaRepository<Customer, Long>, JpaSp
     boolean existsByPhoneAndIdNot(String phone, Long id);
 
     Long countByStatus(CustomerStatus customerStatus);
+
+    @Query("SELECT c.status AS status, COUNT(c) AS count " +
+            "FROM Customers c " +
+            "WHERE c.deletedAt IS NULL " +
+            "GROUP BY c.status " +
+            "ORDER BY c.status")
+    List<CustomerStatusCountDto> countGroupByStatus();
 }

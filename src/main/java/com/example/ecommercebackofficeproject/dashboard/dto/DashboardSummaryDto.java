@@ -1,10 +1,10 @@
-package com.example.ecommercebackofficeproject.dashboard.dto.Response;
+package com.example.ecommercebackofficeproject.dashboard.dto;
 
 import lombok.Builder;
 import lombok.Getter;
 
 @Getter
-public class DashboardSummaryResponseDto {
+public class DashboardSummaryDto {
     private final Long totalAdminCount;
     private final Long activeAdminCount;
 
@@ -21,7 +21,7 @@ public class DashboardSummaryResponseDto {
     private final Double averageRating;
 
     @Builder
-    public DashboardSummaryResponseDto(Long totalAdminCount, Long activeAdminCount, Long totalCustomerCount, Long activeCustomerCount, Long totalProductCount, Long lowStockProductCount, Long totalOrderCount, Long todayOrderCount, Long totalReviewCount, Double averageRating) {
+    public DashboardSummaryDto(Long totalAdminCount, Long activeAdminCount, Long totalCustomerCount, Long activeCustomerCount, Long totalProductCount, Long lowStockProductCount, Long totalOrderCount, Long todayOrderCount, Long totalReviewCount, Double averageRating) {
         this.totalAdminCount = totalAdminCount;
         this.activeAdminCount = activeAdminCount;
         this.totalCustomerCount = totalCustomerCount;
