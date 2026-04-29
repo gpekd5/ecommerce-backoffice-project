@@ -93,12 +93,16 @@ public class DashboardService {
         return DashboardSummaryDto.builder()
                 .totalAdminCount(adminRepository.count())
                 .activeAdminCount(adminRepository.countByStatus(AdminStatus.ACTIVE))
+
                 .totalCustomerCount(customerRepository.count())
                 .activeCustomerCount(customerRepository.countByStatus(CustomerStatus.ACTIVE))
+
                 .totalProductCount(productRepository.count())
                 .lowStockProductCount(productRepository.countByStockLessThanEqual(5))
+
                 .totalOrderCount(orderRepository.count())
                 .todayOrderCount(orderRepository.countByCreatedAtBetween(startOfToday, startOfTomorrow))
+
                 .totalReviewCount(reviewRepository.count())
                 .averageRating(averageRating)
                 .build();
