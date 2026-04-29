@@ -2,8 +2,13 @@ package com.example.ecommercebackofficeproject.order.service;
 
 import com.example.ecommercebackofficeproject.admin.entity.Admin;
 import com.example.ecommercebackofficeproject.admin.repository.AdminRepository;
+import com.example.ecommercebackofficeproject.admin.type.AdminStatus;
 import com.example.ecommercebackofficeproject.customer.entity.Customer;
 import com.example.ecommercebackofficeproject.customer.repository.CustomerRepository;
+import com.example.ecommercebackofficeproject.global.exception.BadRequestException;
+import com.example.ecommercebackofficeproject.global.exception.ForbiddenException;
+import com.example.ecommercebackofficeproject.global.exception.NotFoundException;
+import com.example.ecommercebackofficeproject.global.exception.UnauthorizedException;
 import com.example.ecommercebackofficeproject.order.dto.request.CancelOrderRequestDto;
 import com.example.ecommercebackofficeproject.order.dto.request.GetOrderRequestParamDto;
 import com.example.ecommercebackofficeproject.order.dto.request.CreateOrderRequestDto;
@@ -11,6 +16,7 @@ import com.example.ecommercebackofficeproject.order.dto.request.UpdateOrderReque
 import com.example.ecommercebackofficeproject.order.dto.response.*;
 import com.example.ecommercebackofficeproject.order.entity.Order;
 import com.example.ecommercebackofficeproject.order.repository.OrderRepository;
+import com.example.ecommercebackofficeproject.order.type.OrderStatus;
 import com.example.ecommercebackofficeproject.product.entity.Product;
 import com.example.ecommercebackofficeproject.product.repository.ProductRepository;
 import com.example.ecommercebackofficeproject.product.type.ProductStatus;
@@ -37,7 +43,7 @@ public class OrderService {
 
     /**
      * 주문 생성 API
-     *
+     * <p>
      * 주문을 생성하는 메서드입니다.
      * - 관리자, 상품, 고객 존재 여부를 검증합니다.
      * - 상품 상태(단종, 품절) 및 재고를 확인합니다.
@@ -49,23 +55,20 @@ public class OrderService {
      */
     @Transactional
     public CreateOrderResponseDto createOrder(Long adminId, CreateOrderRequestDto request) {
-        // todo - 단종 / 품절 / 재고 부족 / 고객 없음 / 상품 없음 / 403 처리
-        Admin admin = adminRepository.findById(adminId).orElseThrow(
-                () -> new IllegalStateException("로그인한 관리자를 찾을 수 없습니다.")
-        );
-        Product product = productRepository.findById(request.getProductId()).orElseThrow(
-                () -> new IllegalStateException("상품을 찾을 수 없습니다.") // todo - 상품 없음 에러 처리
-        );
-        Customer customer = customerRepository.findById(request.getCustomerId()).orElseThrow(
-                () -> new IllegalStateException("고객을 찾을 수 없습니다.") // todo - 고객 없음 에러 처리
-        );
-        if (product.getStatus() == ProductStatus.DISCONTINUED) { // todo - 단종된 상품 에러 처리
-            throw new IllegalArgumentException("단종된 상품은 주문할 수 없습니다.");
-        } else if (product.getStatus() == ProductStatus.SOLD_OUT) { // todo - 품절된 상품 에러 처리
-            throw new IllegalArgumentException("품절된 상품은 주문할 수 없습니다.");
+        Admin admin = validateAdmin(adminId);
+        Product product = validateProduct(request.getProductId());
+        Customer customer = validateCustomer(request.getCustomerId());
+
+        if (product.getStatus() == ProductStatus.DISCONTINUED) {
+            throw new BadRequestException("단종된 상품은 주문할 수 없습니다.");
+        } else if (product.getStatus() == ProductStatus.SOLD_OUT) {
+            throw new BadRequestException("품절된 상품은 주문할 수 없습니다.");
         }
         if (request.getQuantity() > product.getStock()) {
-            throw new IllegalArgumentException("상품 재고가 부족합니다."); // todo - 재고 부족 에러 처리
+            throw new BadRequestException("상품 재고가 부족합니다.");
+        }
+        if (request.getQuantity() > 0) {
+            throw new BadRequestException("주문 수량은 1개 이상이어야 합니다.");
         }
 
         Order order = Order.builder()
@@ -107,13 +110,8 @@ public class OrderService {
      */
     @Transactional(readOnly = true)
     public GetOneOrderResponseDto getOneOrder(Long adminId, Long orderId) {
-        Admin admin = adminRepository.findById(adminId).orElseThrow(
-                () -> new IllegalStateException("로그인한 관리자를 찾을 수 없습니다.")
-        );
-
-        Order order = orderRepository.findById(orderId).orElseThrow(
-                () -> new IllegalStateException("주문을 찾을 수 없습니다.") // todo - 주문 404 에러 처리
-        );
+        validateAdmin(adminId);
+        Order order = validateOrder(orderId);
 
         return GetOneOrderResponseDto.builder()
                 .id(order.getId())
@@ -145,28 +143,28 @@ public class OrderService {
      */
     @Transactional(readOnly = true)
     public GetListOrderResponseDto getListOrder(GetOrderRequestParamDto request) {
-        // 1. 키워드 ("" -> null)
-        String keyword = request.getKeyword();
-        if (keyword != null && keyword.isBlank()) {
-            keyword = null;
-        }
+        // 페이지 검증 / 처리
+        int page = validatePage(request.getPage());
+        // 페이지 당 개수 검증 / 처리
+        int size = validateSize(request.getSize());
+        // 키워드 처리
+        String keyword = normalizeKeyword(request.getKeyword());
+        // 정렬 기준 검증 / 처리
+        String sortBy = validateSortBy(request.getSortBy());
+        // 정렬 순서 검증 / 처리
+        Sort.Direction sortDirection = validateSortDirection(request.getSortDirection());
+        // 주문 상태 검증 / 처리
+        OrderStatus orderStatus = validateOrderStatus(request.getOrderStatus());
 
-        // page & size 처리
-        int page = request.getPage() != null ? request.getPage() : 1;
-        int size = request.getSize() != null ? request.getSize() : 10;
+        Pageable pageable = PageRequest.of(
+                page - 1,
+                size,
+                Sort.by(sortDirection, sortBy)
+        );
 
-
-        // 정렬 처리
-        String sortBy = request.getSortBy() != null ? request.getSortBy() : "orderedAt";
-        String sortDirection = request.getSortDirection() != null ? request.getSortDirection() : "DESC";
-
-        Sort.Direction direction = Sort.Direction.fromString(sortDirection);
-        Pageable pageable = PageRequest.of(page - 1, size, Sort.by(direction, sortBy));
-
-        // 조회
         Page<Order> orderPage = orderRepository.searchOrders(
                 keyword,
-                request.getOrderStatus(),
+                orderStatus,
                 pageable
         );
 
@@ -207,15 +205,12 @@ public class OrderService {
      * @return 변경된 주문 상태 정보
      */
     @Transactional
-    public UpdateOrderResponseDto updateOrder(Long orderId, UpdateOrderRequestDto request) {
-        Order order = orderRepository.findById(orderId).orElseThrow(
-                () -> new IllegalStateException("주문을 찾을 수 없습니다.") // todo - custom exception
-        );
-        if (!order.getOrderStatus().canChangeTo(request.getOrderStatus())) {
-            throw new IllegalArgumentException("현재 상태에서는 해당 상태로 변경할 수 없습니다."); // todo - custom exception
-        }
+    public UpdateOrderResponseDto updateOrder(Long adminId, Long orderId, UpdateOrderRequestDto request) {
+        validateAdmin(adminId);
+        Order order = validateOrder(orderId);
+        OrderStatus status = validateOrderStatus(request.getOrderStatus());
+        order.changeOrderStatus(status);
 
-        order.changeOrderStatus(request.getOrderStatus());
         return UpdateOrderResponseDto.builder()
                 .id(order.getId())
                 .orderStatus(order.getOrderStatus())
@@ -236,9 +231,14 @@ public class OrderService {
      */
     @Transactional
     public CancelOrderResponseDto cancelOrder(Long orderId, CancelOrderRequestDto request) {
-        Order order = orderRepository.findById(orderId).orElseThrow(
-                () -> new IllegalStateException("나중에 처리 예정") // todo - custom exception
-        );
+        Order order = validateOrder(orderId);
+
+        if (order.getOrderStatus() == OrderStatus.CANCELED) {
+            throw new BadRequestException("이미 취소된 주문입니다.");
+        } else if (order.getOrderStatus() != OrderStatus.PREPARING) {
+            throw new BadRequestException("준비 중인 상태의 주문만 취소할 수 있습니다.");
+        }
+
         order.cancel(request.getOrderCancelReason());
 
         // 재고 복구
@@ -280,6 +280,190 @@ public class OrderService {
         orderNumber += "-" + String.format("%03d", count + 1);
 
         return orderNumber;
+    }
+
+    /**
+     * 관리자 ID로 관리자를 조회하고, 로그인 및 활성 상태를 검증합니다.
+     *
+     * @param adminId 관리자 ID
+     * @return 검증된 관리자 엔티티
+     * @throws UnauthorizedException 관리자가 존재하지 않는 경우 (로그인 안됨)
+     * @throws ForbiddenException    관리자가 비활성 상태인 경우 (권한 없음)
+     */
+    private Admin validateAdmin(Long adminId) {
+        Admin admin = adminRepository.findById(adminId).orElseThrow(
+                () -> new UnauthorizedException("로그인한 관리자를 찾을 수 없습니다.")
+        );
+        if (admin.getStatus() != AdminStatus.ACTIVE) {
+            throw new ForbiddenException("접근 권한이 없습니다.");
+        }
+        return admin;
+    }
+
+    /**
+     * 상품 ID로 상품을 조회합니다.
+     *
+     * @param productId 상품 ID
+     * @return 조회된 상품 엔티티
+     * @throws NotFoundException 상품이 존재하지 않는 경우
+     */
+    private Product validateProduct(Long productId) {
+        return productRepository.findById(productId).orElseThrow(
+                () -> new NotFoundException("상품을 찾을 수 없습니다.")
+        );
+    }
+
+    /**
+     * 고객 ID로 고객을 조회합니다.
+     *
+     * @param customerId 고객 ID
+     * @return 조회된 고객 엔티티
+     * @throws NotFoundException 고객이 존재하지 않는 경우
+     */
+    private Customer validateCustomer(Long customerId) {
+        return customerRepository.findById(customerId).orElseThrow(
+                () -> new NotFoundException("고객을 찾을 수 없습니다.")
+        );
+    }
+
+    /**
+     * 주문 ID로 주문을 조회합니다.
+     *
+     * @param orderId 주문 ID
+     * @return 조회된 주문 엔티티
+     * @throws NotFoundException 주문이 존재하지 않는 경우
+     */
+    private Order validateOrder(Long orderId) {
+        return orderRepository.findById(orderId).orElseThrow(
+                () -> new NotFoundException("주문을 찾을 수 없습니다.")
+        );
+    }
+
+    /**
+     * 정렬 기준 값을 검증하고, 실제 엔티티 필드명으로 변환합니다.
+     *
+     * <p>지원하는 정렬 기준:</p>
+     * <ul>
+     *     <li>orderedAt → createdAt</li>
+     *     <li>totalPrice</li>
+     *     <li>orderStatus</li>
+     * </ul>
+     *
+     * @param sortBy 클라이언트에서 전달된 정렬 기준
+     * @return 엔티티 필드명으로 변환된 정렬 기준
+     * @throws BadRequestException 지원하지 않는 정렬 기준인 경우
+     */
+    private String validateSortBy(String sortBy) {
+        if (sortBy == null || sortBy.isBlank()) {
+            return "createdAt";
+        }
+
+        return switch (sortBy) {
+            case "orderedAt" -> "createdAt";
+            case "totalPrice" -> "totalPrice";
+            case "orderStatus" -> "orderStatus";
+            default -> throw new BadRequestException("지원하지 않는 정렬 기준입니다.");
+        };
+    }
+
+    /**
+     * 정렬 순서를 검증하고 {@link Sort.Direction}으로 변환합니다.
+     *
+     * <p>지원하는 값:</p>
+     * <ul>
+     *     <li>ASC</li>
+     *     <li>DESC</li>
+     * </ul>
+     *
+     * @param sortDirection 클라이언트에서 전달된 정렬 순서
+     * @return Sort.Direction (ASC 또는 DESC)
+     * @throws BadRequestException 지원하지 않는 정렬 순서인 경우
+     */
+    private Sort.Direction validateSortDirection(String sortDirection) {
+        if (sortDirection == null || sortDirection.isBlank()) {
+            return Sort.Direction.DESC;
+        }
+
+        return switch (sortDirection.toUpperCase()) {
+            case "ASC" -> Sort.Direction.ASC;
+            case "DESC" -> Sort.Direction.DESC;
+            default -> throw new BadRequestException("지원하지 않는 정렬 순서입니다.");
+        };
+    }
+
+    /**
+     * 주문 상태 문자열을 검증하고 {@link OrderStatus} enum으로 변환합니다.
+     *
+     * <p>null 또는 공백일 경우 필터 미적용으로 간주하여 null을 반환합니다.</p>
+     *
+     * @param orderStatus 클라이언트에서 전달된 주문 상태 문자열
+     * @return 변환된 OrderStatus 또는 null
+     * @throws BadRequestException 지원하지 않는 주문 상태인 경우
+     */
+    private OrderStatus validateOrderStatus(String orderStatus) {
+        if (orderStatus == null || orderStatus.isBlank()) {
+            return null;
+        }
+
+        try {
+            return OrderStatus.valueOf(orderStatus.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            throw new BadRequestException("지원하지 않는 주문 상태입니다.");
+        }
+    }
+
+    /**
+     * 검색 키워드를 정규화합니다.
+     *
+     * <p>공백 문자열은 null로 변환하여 검색 조건에서 제외합니다.</p>
+     *
+     * @param keyword 검색 키워드
+     * @return 정규화된 키워드 또는 null
+     */
+    private String normalizeKeyword(String keyword) {
+        if (keyword != null && keyword.isBlank()) {
+            return null;
+        }
+
+        return keyword;
+    }
+
+    /**
+     * 페이지 번호를 검증하고 기본값을 설정합니다.
+     *
+     * <p>null인 경우 기본값 1을 반환합니다.</p>
+     *
+     * @param page 요청된 페이지 번호
+     * @return 검증된 페이지 번호
+     * @throws BadRequestException 페이지 번호가 1보다 작은 경우
+     */
+    private int validatePage(Integer page) {
+        if (page == null) {
+            return 1;
+        }
+        if (page < 1) {
+            throw new BadRequestException("페이지 번호는 1 이상이어야 합니다.");
+        }
+        return page;
+    }
+
+    /**
+     * 페이지 당 조회 개수를 검증하고 기본값을 설정합니다.
+     *
+     * <p>null인 경우 기본값 10을 반환합니다.</p>
+     *
+     * @param size 요청된 페이지 크기
+     * @return 검증된 페이지 크기
+     * @throws BadRequestException 페이지 크기가 1보다 작은 경우
+     */
+    private int validateSize(Integer size) {
+        if (size == null) {
+            return 10;
+        }
+        if (size < 1) {
+            throw new BadRequestException("페이지당 개수는 1 이상이어야 합니다.");
+        }
+        return size;
     }
 
 }

@@ -27,7 +27,7 @@ public class OrderController {
      * @return 생성된 주문 정보
      */
     @PostMapping
-    public ResponseEntity<CreateOrderResponseDto> createOrder(@SessionAttribute(name = "loginUser") SessionAdminDto sessionAdminDto,
+    public ResponseEntity<CreateOrderResponseDto> createOrder(@RequestAttribute(name = "loginUser") SessionAdminDto sessionAdminDto,
                                                               @Valid @RequestBody CreateOrderRequestDto request) {
         CreateOrderResponseDto result = orderService.createOrder(sessionAdminDto.getAdminId(), request);
         return ResponseEntity.status(HttpStatus.CREATED).body(result);
@@ -41,7 +41,7 @@ public class OrderController {
      * @return 주문 상세 정보
      */
     @GetMapping("/{orderId}")
-    public ResponseEntity<GetOneOrderResponseDto> getOneOrder(@SessionAttribute(name = "loginUser") SessionAdminDto sessionAdminDto,
+    public ResponseEntity<GetOneOrderResponseDto> getOneOrder(@RequestAttribute(name = "loginUser") SessionAdminDto sessionAdminDto,
                                                               @PathVariable Long orderId) {
         GetOneOrderResponseDto result = orderService.getOneOrder(sessionAdminDto.getAdminId(), orderId);
         return ResponseEntity.status(HttpStatus.OK).body(result);
@@ -70,10 +70,10 @@ public class OrderController {
      * @return 변경된 주문 정보
      */
     @PatchMapping("/{orderId}/status")
-    public ResponseEntity<UpdateOrderResponseDto> updateOrder(@SessionAttribute(name = "loginUser") SessionAdminDto sessionAdminDto,
+    public ResponseEntity<UpdateOrderResponseDto> updateOrder(@RequestAttribute(name = "loginUser") SessionAdminDto sessionAdminDto,
                                                               @PathVariable Long orderId,
                                                               @Valid @RequestBody UpdateOrderRequestDto request) {
-        UpdateOrderResponseDto result = orderService.updateOrder(orderId, request);
+        UpdateOrderResponseDto result = orderService.updateOrder(sessionAdminDto.getAdminId(), orderId, request);
         return ResponseEntity.status(HttpStatus.OK).body(result);
     }
 
@@ -86,7 +86,7 @@ public class OrderController {
      * @return 취소된 주문 정보
      */
     @PatchMapping("/{orderId}")
-    public ResponseEntity<CancelOrderResponseDto> cancelOrder(@SessionAttribute(name = "loginUser") SessionAdminDto sessionAdminDto,
+    public ResponseEntity<CancelOrderResponseDto> cancelOrder(@RequestAttribute(name = "loginUser") SessionAdminDto sessionAdminDto,
                                                               @PathVariable Long orderId,
                                                               @Valid @RequestBody CancelOrderRequestDto request) {
         CancelOrderResponseDto result = orderService.cancelOrder(orderId, request);

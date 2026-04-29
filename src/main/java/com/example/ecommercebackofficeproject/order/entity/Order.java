@@ -61,6 +61,7 @@ public class Order extends BaseEntity {
     }
 
     public void changeOrderStatus(OrderStatus orderStatus) {
+        this.orderStatus.validateChangeTo(orderStatus);
         this.orderStatus = orderStatus;
     }
 
