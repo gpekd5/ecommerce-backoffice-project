@@ -9,6 +9,9 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
 
+/**
+ * 상품 정보 수정 요청 데이터를 전달받는 DTO 클래스입니다.
+ */
 @Getter
 public class ProductUpdateInfoDto {
 
