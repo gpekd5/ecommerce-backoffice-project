@@ -6,9 +6,5 @@ import lombok.Getter;
 @Getter
 public class CancelOrderRequestDto {
     @NotNull(message = "주문 취소 사유는 필수입니다.")
-    private final String orderCancelReason;
-
-    public CancelOrderRequestDto(String orderCancelReason) {
-        this.orderCancelReason = orderCancelReason;
-    }
+    private String orderCancelReason;
 }
