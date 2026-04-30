@@ -109,12 +109,12 @@ AR --> AS[응답 반환]
     - **BCrypt**
 - **Tools:** Postman
 
+![image.png](docs/images/projectArchitecture.png)
+
 ## 패키지 구조
 
 <details>
 <summary>패키지 구조 확인</summary>
-
-![image.png](docs/images/projectArchitecture.png)
 
 ```
 ecommercebackofficeproject
@@ -272,110 +272,7 @@ ecommercebackofficeproject
 
 ## ERD
 
-```mermaid
-erDiagram
-
-%% =========================
-%% RELATIONSHIPS
-%% =========================
-  ADMINS    ||--o{ PRODUCTS : manages
-  ADMINS    ||--o{ ORDERS   : processes
-
-  CUSTOMERS ||--o{ ORDERS   : places
-  CUSTOMERS ||--o{ REVIEWS  : writes
-
-  PRODUCTS  ||--o{ ORDERS   : included_in
-  PRODUCTS  ||--o{ REVIEWS  : reviewed
-
-  ORDERS    ||--o| REVIEWS  : generates
-
-
-%% =========================
-%% ADMIN DOMAIN
-%% =========================
-  ADMINS {
-    BIGINT   id PK
-    VARCHAR  email UK
-    VARCHAR  password
-    VARCHAR  name
-    VARCHAR  phone
-    ENUM     role
-    ENUM     status
-    DATETIME approved_at
-    DATETIME rejected_at
-    VARCHAR  reject_reason
-    DATETIME created_at
-    DATETIME updated_at
-    DATETIME deleted_at
-  }
-
-
-%% =========================
-%% CUSTOMER DOMAIN
-%% =========================
-  CUSTOMERS {
-    BIGINT   id PK
-    VARCHAR  email UK
-    VARCHAR  phone UK
-    VARCHAR  name
-    ENUM     status
-    DATETIME created_at
-    DATETIME updated_at
-    DATETIME deleted_at
-  }
-
-
-%% =========================
-%% PRODUCT DOMAIN
-%% =========================
-  PRODUCTS {
-    BIGINT   id PK
-    BIGINT   admin_id FK
-    VARCHAR  name
-    ENUM     category
-    INT      price
-    INT      stock
-    ENUM     status
-    DATETIME created_at
-    DATETIME updated_at
-    DATETIME deleted_at
-  }
-
-
-%% =========================
-%% ORDER DOMAIN
-%% =========================
-  ORDERS {
-    BIGINT   id PK
-    BIGINT   admin_id FK
-    BIGINT   customer_id FK
-    BIGINT   product_id FK
-    VARCHAR  order_number
-    ENUM     order_status
-    INT      quantity
-    INT      total_price
-    VARCHAR  order_cancel_reason
-    DATETIME created_at
-    DATETIME updated_at
-    DATETIME deleted_at
-  }
-
-
-%% =========================
-%% REVIEW DOMAIN
-%% =========================
-  REVIEWS {
-    BIGINT   id PK
-    BIGINT   customer_id FK
-    BIGINT   product_id FK
-    BIGINT   order_id FK
-    INT      rating
-    VARCHAR  comment
-    DATETIME created_at
-    DATETIME updated_at
-    DATETIME deleted_at
-  }
-```
+![image.png](docs/images/erd.png)
 
 ## API 요약
 
