@@ -415,4 +415,4 @@ erDiagram
 
 ### [1. 로그인 여부 확인 로직 공통화와 Interceptor 적용](https://github.com/gpekd5/ecommerce-backoffice-project/wiki/%5BTroubleShooting%5D-%EB%A1%9C%EA%B7%B8%EC%9D%B8-%EC%97%AC%EB%B6%80-%ED%99%95%EC%9D%B8-%EB%A1%9C%EC%A7%81-%EA%B3%B5%ED%86%B5%ED%99%94%EC%99%80-Interceptor-%EC%A0%81%EC%9A%A9)
 
-### 추가 예정
+### [2. GlobalExceptionHandler를 통한 예외 처리 공통화](https://github.com/gpekd5/ecommerce-backoffice-project/wiki/%5BTroubleShooting%5D-GlobalExceptionHandler%EB%A5%BC-%ED%86%B5%ED%95%9C-%EC%98%88%EC%99%B8-%EC%B2%98%EB%A6%AC-%EA%B3%B5%ED%86%B5%ED%99%94)
