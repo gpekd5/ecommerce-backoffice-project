@@ -1,5 +1,5 @@
 @host = http://localhost:8080
-@token = eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiZW1haWwiOiJzdXBlckB0ZXN0LmNvbSIsInJvbGUiOiJTVVBFUiIsImlhdCI6MTc3NzUxMjg4MywiZXhwIjoxNzc3NTk5MjgzfQ.mYkkehW2zNxSViOmqw5kxjXJ6nKwn3R6I93vgXBXBc4
+@token = eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiZW1haWwiOiJzdXBlckB0ZXN0LmNvbSIsInJvbGUiOiJTVVBFUiIsImlhdCI6MTc3NzUzMjExNCwiZXhwIjoxNzc3NjE4NTE0fQ.U3Ec9tICmGv6hlTaxWJY7L6ud6D_q5P8g738s-R6aqI
 
 ### 대시보드 전체 데이터 조회
 GET {{host}}/dashboard

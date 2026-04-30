@@ -1,5 +1,5 @@
 @host = http://localhost:8080
-@token = eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiZW1haWwiOiJzdXBlckB0ZXN0LmNvbSIsInJvbGUiOiJTVVBFUiIsImlhdCI6MTc3NzUxMjg4MywiZXhwIjoxNzc3NTk5MjgzfQ.mYkkehW2zNxSViOmqw5kxjXJ6nKwn3R6I93vgXBXBc4
+@token = eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiZW1haWwiOiJzdXBlckB0ZXN0LmNvbSIsInJvbGUiOiJTVVBFUiIsImlhdCI6MTc3NzUzMjI4NiwiZXhwIjoxNzc3NjE4Njg2fQ.rBuYQKsvIEUHjwkYexRybRe-mxqf9IXgxfy27tZn6Y0
 
 ### 1. 관리자 로그인
 POST {{host}}/admins/login
