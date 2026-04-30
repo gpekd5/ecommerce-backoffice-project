@@ -102,7 +102,7 @@ package com.navercorp.api_gateway;
 
 - 패키지 구조 및 dto 클래스 명은 아래와 같은 방식으로 합니다.
 
-![image.png](docs/image.png)
+![image.png](images/codeConvention.png)
 
 ## 2. 컨트롤러 규칙
 
