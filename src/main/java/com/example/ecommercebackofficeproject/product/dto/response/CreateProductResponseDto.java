@@ -8,22 +8,21 @@ import lombok.Getter;
 import java.time.LocalDateTime;
 
 /**
- * 상품 정보 등록 시 응답 데이터로 사용되는 DTO 클래스입니다.
- * Product 엔티티를 클라이언트에 필요한 정보만 담은 응답 객체로 변환합니다.
+ * 상품 등록 성공 시 반환되는 응답 DTO 클래스입니다.
  */
 @Getter
 public class CreateProductResponseDto {
 
-    private Long productId;             // 상품 고유식별자
-    private String productName;         // 상품명
-    private ProductCategory category;   // 카테고리
-    private Long price;                 // 가격
-    private int stock;                  // 재고
-    private ProductStatus status;       // 상태
-    private LocalDateTime createdAt;    // 등록일
-    private Long createdBy;             // 등록 관리자 고유식별자
-    private String createdByName;       // 등록 관리자명
-    private String createdByEmail;      // 등록 관리자 이메일
+    private final Long productId;             // 상품 고유식별자
+    private final String productName;         // 상품명
+    private final ProductCategory category;   // 카테고리
+    private final Long price;                 // 가격
+    private final int stock;                  // 재고
+    private final ProductStatus status;       // 상태
+    private final LocalDateTime createdAt;    // 등록일
+    private final Long createdBy;             // 등록 관리자 고유식별자
+    private final String createdByName;       // 등록 관리자명
+    private final String createdByEmail;      // 등록 관리자 이메일
 
     /**
      * Product 엔티티 객체를 바탕으로 응답용 DTO를 생성합니다.
