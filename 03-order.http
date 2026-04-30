@@ -29,7 +29,7 @@ Authorization: Bearer {{token}}
 
 
 ### 주문 상태 변경
-PATCH {{host}}/orders/1/status
+PATCH {{host}}/orders/4/status
 Content-Type: application/json
 Authorization: Bearer {{token}}
 
@@ -39,7 +39,7 @@ Authorization: Bearer {{token}}
 
 
 ### 주문 취소
-PATCH {{host}}/orders/1
+PATCH {{host}}/orders/3
 Content-Type: application/json
 Authorization: Bearer {{token}}
 

@@ -26,7 +26,7 @@ Authorization: Bearer {{token}}
 
 
 ### 상품 상세 조회
-GET {{host}}/products/1
+GET {{host}}/products/2
 Authorization: Bearer {{token}}
 
 
@@ -48,7 +48,7 @@ Content-Type: application/json
 Authorization: Bearer {{token}}
 
 {
-  "status": "SOLD_OUT"
+  "status": "DISCONTINUED"
 }
 
 
