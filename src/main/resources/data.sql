@@ -1,8 +1,8 @@
--- 관리자 테이블
+-- 관리자 테이블 (비밀번호: sparta1234)
 INSERT INTO admins (name, email, password, phone, role, status, created_at, updated_at) VALUES
-('슈퍼관리자', 'super@test.com', 'sparta1234', '010-1111-0000', 'SUPER', 'ACTIVE', NOW(), NOW()),
-('박운영', 'op1@test.com', 'sparta1234', '010-1111-1111', 'OPERATION', 'ACTIVE', NOW(), NOW()),
-('이관리', 'cs1@test.com', 'sparta1234', '010-1111-2222', 'CS', 'ACTIVE', NOW(), NOW());
+('슈퍼관리자', 'super@test.com', '$2a$04$xNeUFYHiBIbYtmMX3WbQyOuUE5Yr0QmHS/XgPyyJi8B.Mc1lSaqBO', '010-1111-0000', 'SUPER', 'ACTIVE', NOW(), NOW()),
+('박운영', 'op1@test.com', '$2a$04$xNeUFYHiBIbYtmMX3WbQyOuUE5Yr0QmHS/XgPyyJi8B.Mc1lSaqBO', '010-1111-1111', 'OPERATION', 'PENDING', NOW(), NOW()),
+('이관리', 'cs1@test.com', '$2a$04$xNeUFYHiBIbYtmMX3WbQyOuUE5Yr0QmHS/XgPyyJi8B.Mc1lSaqBO', '010-1111-2222', 'CS', 'PENDING', NOW(), NOW());
 
 
 -- 고객 테이블

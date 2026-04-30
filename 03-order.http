@@ -1,0 +1,48 @@
+@host = http://localhost:8080
+@token = eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiZW1haWwiOiJzdXBlckB0ZXN0LmNvbSIsInJvbGUiOiJTVVBFUiIsImlhdCI6MTc3NzUxMjg4MywiZXhwIjoxNzc3NTk5MjgzfQ.mYkkehW2zNxSViOmqw5kxjXJ6nKwn3R6I93vgXBXBc4
+
+### 주문 생성
+POST {{host}}/orders
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "customerId": 1,
+  "productId": 1,
+  "quantity": 1
+}
+
+
+### 주문 목록 조회
+GET {{host}}/orders
+Authorization: Bearer {{token}}
+
+
+### 주문 목록 조회 - 검색 / 필터 / 페이지네이션
+GET {{host}}/orders?keyword=홍길동&page=1&size=10
+Authorization: Bearer {{token}}
+
+
+### 주문 단건 조회
+GET {{host}}/orders/1
+Authorization: Bearer {{token}}
+
+
+### 주문 상태 변경
+PATCH {{host}}/orders/1/status
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "orderStatus": "SHIPPING"
+}
+
+
+### 주문 취소
+PATCH {{host}}/orders/1
+Content-Type: application/json
+Authorization: Bearer {{token}}
+
+{
+  "orderCancelReason": "고객 요청으로 인한 주문 취소"
+}

@@ -1,0 +1,15 @@
+@host = http://localhost:8080
+@token = eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxIiwiZW1haWwiOiJzdXBlckB0ZXN0LmNvbSIsInJvbGUiOiJTVVBFUiIsImlhdCI6MTc3NzUxMjg4MywiZXhwIjoxNzc3NTk5MjgzfQ.mYkkehW2zNxSViOmqw5kxjXJ6nKwn3R6I93vgXBXBc4
+
+### 1. 관리자 로그인
+POST {{host}}/admins/login
+Content-Type: application/json
+
+{
+  "email": "super@test.com",
+  "password": "sparta1234"
+}
+
+### 2. 관리자 로그아웃
+POST {{host}}/admins/logout
+Authorization: Bearer {{token}}
