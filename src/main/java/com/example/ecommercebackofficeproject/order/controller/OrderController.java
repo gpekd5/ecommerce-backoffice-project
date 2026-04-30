@@ -1,6 +1,7 @@
 package com.example.ecommercebackofficeproject.order.controller;
 
 import com.example.ecommercebackofficeproject.auth.dto.SessionAdminDto;
+import com.example.ecommercebackofficeproject.global.response.ApiResponse;
 import com.example.ecommercebackofficeproject.order.dto.request.CancelOrderRequestDto;
 import com.example.ecommercebackofficeproject.order.dto.request.CreateOrderRequestDto;
 import com.example.ecommercebackofficeproject.order.dto.request.GetOrderRequestParamDto;
@@ -17,6 +18,7 @@ import org.springframework.web.bind.annotation.*;
 @RequestMapping("/orders")
 @RequiredArgsConstructor
 public class OrderController {
+
     private final OrderService orderService;
 
     /**
@@ -27,10 +29,19 @@ public class OrderController {
      * @return 생성된 주문 정보
      */
     @PostMapping
-    public ResponseEntity<CreateOrderResponseDto> createOrder(@RequestAttribute(name = "loginUser") SessionAdminDto sessionAdminDto,
-                                                              @Valid @RequestBody CreateOrderRequestDto request) {
+    public ResponseEntity<ApiResponse<CreateOrderResponseDto>> createOrder(
+            @RequestAttribute(name = "loginUser") SessionAdminDto sessionAdminDto,
+            @Valid @RequestBody CreateOrderRequestDto request
+    ) {
         CreateOrderResponseDto result = orderService.createOrder(sessionAdminDto.getAdminId(), request);
-        return ResponseEntity.status(HttpStatus.CREATED).body(result);
+
+        return ResponseEntity.status(HttpStatus.CREATED).body(
+                ApiResponse.success(
+                        HttpStatus.CREATED,
+                        "주문 생성이 완료되었습니다.",
+                        result
+                )
+        );
     }
 
     /**
@@ -41,28 +52,45 @@ public class OrderController {
      * @return 주문 상세 정보
      */
     @GetMapping("/{orderId}")
-    public ResponseEntity<GetOneOrderResponseDto> getOneOrder(@RequestAttribute(name = "loginUser") SessionAdminDto sessionAdminDto,
-                                                              @PathVariable Long orderId) {
+    public ResponseEntity<ApiResponse<GetOneOrderResponseDto>> getOneOrder(
+            @RequestAttribute(name = "loginUser") SessionAdminDto sessionAdminDto,
+            @PathVariable Long orderId
+    ) {
         GetOneOrderResponseDto result = orderService.getOneOrder(sessionAdminDto.getAdminId(), orderId);
-        return ResponseEntity.status(HttpStatus.OK).body(result);
+
+        return ResponseEntity.status(HttpStatus.OK).body(
+                ApiResponse.success(
+                        HttpStatus.OK,
+                        "주문 상세 조회를 완료하였습니다.",
+                        result
+                )
+        );
     }
 
     /**
      * 주문 목록을 조회합니다.
-     * (필터링 조건 및 페이징 정보 포함 가능)
+     * 필터링 조건 및 페이징 정보 포함 가능.
      *
-     * @param requestParam 조회 조건 (상태, 기간 등)
+     * @param requestParam 조회 조건
      * @return 주문 목록 조회 결과
      */
     @GetMapping
-    public ResponseEntity<GetListOrderResponseDto> getListOrder(@ModelAttribute GetOrderRequestParamDto requestParam) {
-        GetListOrderResponseDto results = orderService.getListOrder(requestParam);
-        return ResponseEntity.status(HttpStatus.OK).body(results);
+    public ResponseEntity<ApiResponse<GetListOrderResponseDto>> getListOrder(
+            @ModelAttribute GetOrderRequestParamDto requestParam
+    ) {
+        GetListOrderResponseDto result = orderService.getListOrder(requestParam);
+
+        return ResponseEntity.status(HttpStatus.OK).body(
+                ApiResponse.success(
+                        HttpStatus.OK,
+                        "주문 목록 조회를 완료하였습니다.",
+                        result
+                )
+        );
     }
 
     /**
      * 주문 상태를 변경합니다.
-     * (예: PREPARING → SHIPPING → DELIVERED)
      *
      * @param sessionAdminDto 세션에 저장된 로그인 관리자 정보
      * @param orderId         상태를 변경할 주문 ID
@@ -70,11 +98,20 @@ public class OrderController {
      * @return 변경된 주문 정보
      */
     @PatchMapping("/{orderId}/status")
-    public ResponseEntity<UpdateOrderResponseDto> updateOrder(@RequestAttribute(name = "loginUser") SessionAdminDto sessionAdminDto,
-                                                              @PathVariable Long orderId,
-                                                              @Valid @RequestBody UpdateOrderRequestDto request) {
+    public ResponseEntity<ApiResponse<UpdateOrderResponseDto>> updateOrder(
+            @RequestAttribute(name = "loginUser") SessionAdminDto sessionAdminDto,
+            @PathVariable Long orderId,
+            @Valid @RequestBody UpdateOrderRequestDto request
+    ) {
         UpdateOrderResponseDto result = orderService.updateOrder(sessionAdminDto.getAdminId(), orderId, request);
-        return ResponseEntity.status(HttpStatus.OK).body(result);
+
+        return ResponseEntity.status(HttpStatus.OK).body(
+                ApiResponse.success(
+                        HttpStatus.OK,
+                        "주문 상태 변경을 완료하였습니다.",
+                        result
+                )
+        );
     }
 
     /**
@@ -86,10 +123,19 @@ public class OrderController {
      * @return 취소된 주문 정보
      */
     @PatchMapping("/{orderId}")
-    public ResponseEntity<CancelOrderResponseDto> cancelOrder(@RequestAttribute(name = "loginUser") SessionAdminDto sessionAdminDto,
-                                                              @PathVariable Long orderId,
-                                                              @Valid @RequestBody CancelOrderRequestDto request) {
+    public ResponseEntity<ApiResponse<CancelOrderResponseDto>> cancelOrder(
+            @RequestAttribute(name = "loginUser") SessionAdminDto sessionAdminDto,
+            @PathVariable Long orderId,
+            @Valid @RequestBody CancelOrderRequestDto request
+    ) {
         CancelOrderResponseDto result = orderService.cancelOrder(orderId, request);
-        return ResponseEntity.status(HttpStatus.OK).body(result);
+
+        return ResponseEntity.status(HttpStatus.OK).body(
+                ApiResponse.success(
+                        HttpStatus.OK,
+                        "주문 취소를 완료하였습니다.",
+                        result
+                )
+        );
     }
 }

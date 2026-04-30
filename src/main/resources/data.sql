@@ -1,8 +1,8 @@
--- 관리자 테이블
+-- 관리자 테이블 (비밀번호: sparta1234)
 INSERT INTO admins (name, email, password, phone, role, status, created_at, updated_at) VALUES
-('슈퍼관리자', 'super@test.com', 'sparta1234', '010-1111-0000', 'SUPER', 'ACTIVE', NOW(), NOW()),
-('박운영', 'op1@test.com', 'sparta1234', '010-1111-1111', 'OPERATION', 'ACTIVE', NOW(), NOW()),
-('이관리', 'cs1@test.com', 'sparta1234', '010-1111-2222', 'CS', 'ACTIVE', NOW(), NOW());
+('슈퍼관리자', 'super@test.com', '$2a$04$xNeUFYHiBIbYtmMX3WbQyOuUE5Yr0QmHS/XgPyyJi8B.Mc1lSaqBO', '010-1111-0000', 'SUPER', 'ACTIVE', NOW(), NOW()),
+('박운영', 'op1@test.com', '$2a$04$xNeUFYHiBIbYtmMX3WbQyOuUE5Yr0QmHS/XgPyyJi8B.Mc1lSaqBO', '010-1111-1111', 'OPERATION', 'PENDING', NOW(), NOW()),
+('이관리', 'cs1@test.com', '$2a$04$xNeUFYHiBIbYtmMX3WbQyOuUE5Yr0QmHS/XgPyyJi8B.Mc1lSaqBO', '010-1111-2222', 'CS', 'PENDING', NOW(), NOW());
 
 
 -- 고객 테이블
@@ -52,10 +52,10 @@ INSERT INTO products (name, category, price, stock, status, admin_id, created_at
 INSERT INTO orders (order_number, quantity, total_price, order_status, customer_id, product_id, admin_id, created_at, updated_at) VALUES
 ('ORD-2604-001', 1, 85000,  'DELIVERED', 1, 1, 1, NOW(), NOW()),
 ('ORD-2604-002', 1, 85000,  'DELIVERED', 2, 1, 1, NOW(), NOW()),
-('ORD-2604-003', 1, 85000,  'DELIVERED', 3, 1, 1, NOW(), NOW()),
-('ORD-2604-004', 1, 85000,  'DELIVERED', 4, 1, 1, NOW(), NOW()),
-('ORD-2604-005', 1, 85000,  'DELIVERED', 5, 1, 1, NOW(), NOW()),
-('ORD-2604-006', 1, 120000, 'DELIVERED', 6, 2, 1, NOW(), NOW()),
+('ORD-2604-003', 1, 85000,  'PREPARING', 3, 1, 1, NOW(), NOW()),
+('ORD-2604-004', 1, 85000,  'PREPARING', 4, 1, 1, NOW(), NOW()),
+('ORD-2604-005', 1, 85000,  'PREPARING', 5, 1, 1, NOW(), NOW()),
+('ORD-2604-006', 1, 120000, 'SHIPPING', 6, 2, 1, NOW(), NOW()),
 ('ORD-2604-007', 1, 120000, 'DELIVERED', 7, 2, 1, NOW(), NOW()),
 ('ORD-2604-008', 1, 120000, 'DELIVERED', 8, 2, 1, NOW(), NOW()),
 ('ORD-2604-009', 1, 120000, 'DELIVERED', 9, 2, 1, NOW(), NOW()),
