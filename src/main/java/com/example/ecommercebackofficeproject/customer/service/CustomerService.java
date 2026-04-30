@@ -18,20 +18,27 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * 고객 관리 비즈니스 로직을 처리하는 Service.
+ *
+ * 고객 목록 조회, 상세 조회, 정보 수정, 상태 변경, 삭제 기능을 제공한다.
+ * 고객 목록 및 상세 조회 시 고객별 총 주문 수와 총 구매 금액도 함께 조회한다.
+ */
 @Service
 @RequiredArgsConstructor
 public class CustomerService {
 
     private final CustomerRepository customerRepository;
 
-    /*
-     * 고객 목록 조회
+    /**
+     * 고객 목록을 조회한다.
      *
-     * 검색 키워드, 상태 필터, 페이지 번호, 페이지 크기,
+     * 검색 키워드, 고객 상태, 페이지 번호, 페이지 크기,
      * 정렬 기준, 정렬 방향을 기반으로 고객 목록을 조회한다.
+     * 조회된 각 고객에 대해 총 주문 수와 총 구매 금액을 함께 계산하여 응답한다.
      *
-     * 추가로 각 고객별 총 주문 수와 총 구매 금액을 함께 조회하여
-     * 응답 DTO에 포함한다.
+     * @param request 고객 목록 조회 조건을 담은 요청 DTO
+     * @return 고객 목록과 페이징 정보를 담은 응답 DTO
      */
     @Transactional(readOnly = true)
     public GetCustomerPageResponseDto getCustomers(GetCustomerRequestDto request) {
@@ -68,15 +75,15 @@ public class CustomerService {
         return GetCustomerPageResponseDto.from(customerPage, items);
     }
 
-
-
-    /*
-     * 고객 상세 조회
+    /**
+     * 특정 고객의 상세 정보를 조회한다.
      *
-     * 고객 ID를 기준으로 고객 정보를 조회한다.
-     * 삭제 처리된 고객은 조회하지 않는다.
-     *
+     * 고객 ID를 기준으로 논리 삭제되지 않은 고객을 조회한다.
      * 고객 기본 정보와 함께 총 주문 수, 총 구매 금액을 응답한다.
+     *
+     * @param customerId 조회할 고객 ID
+     * @return 고객 상세 정보를 담은 응답 DTO
+     * @throws NotFoundException 고객이 존재하지 않거나 삭제 처리된 경우
      */
     @Transactional(readOnly = true)
     public GetCustomerDetailResponseDto getCustomer(Long customerId) {
@@ -94,13 +101,18 @@ public class CustomerService {
         );
     }
 
-    /*
-     * 고객 정보 수정
+    /**
+     * 고객 정보를 수정한다.
      *
-     * 고객 ID를 기준으로 고객을 조회한 뒤,
+     * 고객 ID를 기준으로 논리 삭제되지 않은 고객을 조회한 뒤,
      * 이름, 이메일, 전화번호를 수정한다.
+     * 이메일과 전화번호는 다른 고객과 중복될 수 없다.
      *
-     * 실제 필드 변경은 Entity의 updateInfo 메서드를 통해 수행한다.
+     * @param customerId 수정할 고객 ID
+     * @param request 고객 정보 수정 요청 DTO
+     * @return 수정된 고객 정보를 담은 응답 DTO
+     * @throws NotFoundException 고객이 존재하지 않거나 삭제 처리된 경우
+     * @throws ConflictException 이메일 또는 전화번호가 이미 사용 중인 경우
      */
     @Transactional
     public UpdateCustomerResponseDto updateCustomer(
@@ -127,11 +139,17 @@ public class CustomerService {
         return UpdateCustomerResponseDto.from(customer);
     }
 
-    /*
-     * 고객 상태 변경
-     *
-     * 요청으로 받은 상태 문자열을 CustomerStatus enum으로 변환한 뒤
+    /**
      * 고객 상태를 변경한다.
+     *
+     * 요청으로 전달된 상태 문자열을 CustomerStatus enum으로 변환한 뒤,
+     * 고객의 상태를 변경한다.
+     *
+     * @param customerId 상태를 변경할 고객 ID
+     * @param request 고객 상태 변경 요청 DTO
+     * @return 변경된 고객 상태 정보를 담은 응답 DTO
+     * @throws NotFoundException 고객이 존재하지 않거나 삭제 처리된 경우
+     * @throws BadRequestException 유효하지 않은 고객 상태가 전달된 경우
      */
     @Transactional
     public UpdateCustomerStatusResponseDto updateCustomerStatus(
@@ -152,13 +170,15 @@ public class CustomerService {
         return UpdateCustomerStatusResponseDto.from(customer);
     }
 
-    /*
-     * 고객 삭제
+    /**
+     * 고객을 삭제 처리한다.
      *
-     * 고객 ID를 기준으로 고객을 조회한 뒤 삭제 처리한다.
+     * 고객 ID를 기준으로 논리 삭제되지 않은 고객을 조회한 뒤,
+     * BaseEntity의 delete 메서드를 사용하여 deletedAt 값을 설정한다.
+     * 실제 DB 데이터는 삭제하지 않는다.
      *
-     * 실제 DB 데이터를 삭제하지 않고 deletedAt 값을 설정하는
-     * 논리 삭제 방식으로 처리한다.
+     * @param customerId 삭제할 고객 ID
+     * @throws NotFoundException 고객이 존재하지 않거나 이미 삭제 처리된 경우
      */
     @Transactional
     public void deleteCustomer(Long customerId) {
@@ -168,16 +188,17 @@ public class CustomerService {
         customer.delete();
     }
 
-
-    /*
-     * 고객 검색 조건 생성
+    /**
+     * 고객 검색 조건을 생성한다.
      *
-     * Specification을 사용하여 동적 검색 조건을 만든다.
+     * Specification을 사용하여 동적 검색 조건을 생성한다.
+     * 기본적으로 deletedAt이 null인 고객만 조회한다.
+     * keyword가 있으면 고객 이름 또는 이메일에 포함되는 고객을 조회하고,
+     * status가 있으면 해당 상태의 고객만 조회한다.
      *
-     * 조건:
-     * - deletedAt이 null인 고객만 조회
-     * - keyword가 있으면 이름 또는 이메일에 포함되는 고객 조회
-     * - status가 있으면 해당 상태의 고객만 조회
+     * @param keyword 검색 키워드
+     * @param status 고객 상태 필터
+     * @return 고객 검색 조건 Specification
      */
     private Specification<Customer> createSearchSpecification(
             String keyword,
@@ -210,11 +231,15 @@ public class CustomerService {
         };
     }
 
-    /*
-     * 고객 상태 문자열을 Enum으로 변환
+    /**
+     * 고객 상태 문자열을 CustomerStatus enum으로 변환한다.
      *
-     * status 값이 없으면 null을 반환하여 필터 조건에서 제외한다.
-     * 유효하지 않은 상태값이면 예외를 발생시킨다.
+     * status 값이 null이거나 공백이면 필터 조건에서 제외하기 위해 null을 반환한다.
+     * 유효하지 않은 상태 문자열이 전달되면 BadRequestException을 발생시킨다.
+     *
+     * @param status 변환할 고객 상태 문자열
+     * @return 변환된 CustomerStatus enum 값
+     * @throws BadRequestException 유효하지 않은 고객 상태가 전달된 경우
      */
     private CustomerStatus parseStatus(String status) {
         if (status == null || status.isBlank()) {
@@ -228,13 +253,19 @@ public class CustomerService {
         }
     }
 
-    /*
-     * Pageable 객체 생성
+    /**
+     * Pageable 객체를 생성한다.
      *
-     * page는 사용자에게 1부터 입력받지만,
-     * Spring Data JPA는 0부터 시작하므로 page - 1을 적용한다.
+     * 클라이언트로부터 전달받은 page 값은 1부터 시작하지만,
+     * Spring Data JPA의 페이지 번호는 0부터 시작하므로 page - 1을 적용한다.
+     * 정렬 기준과 정렬 방향도 함께 적용한다.
      *
-     * 정렬 기준과 정렬 방향을 함께 적용한다.
+     * @param page 페이지 번호
+     * @param size 페이지 크기
+     * @param sortBy 정렬 기준 필드
+     * @param sortDir 정렬 방향
+     * @return 페이징 및 정렬 조건을 담은 Pageable 객체
+     * @throws BadRequestException 페이지 번호 또는 페이지 크기가 유효하지 않은 경우
      */
     private Pageable createPageable(
             int page,
@@ -263,11 +294,15 @@ public class CustomerService {
         );
     }
 
-    /*
-     * 정렬 기준 검증
+    /**
+     * 정렬 기준 필드를 검증한다.
      *
-     * 허용된 정렬 기준만 사용하도록 제한한다.
-     * 잘못된 필드명으로 정렬 요청이 들어오는 것을 방지한다.
+     * 허용된 정렬 기준만 사용할 수 있도록 제한한다.
+     * sortBy 값이 null이거나 공백이면 기본 정렬 기준인 createdAt을 반환한다.
+     *
+     * @param sortBy 검증할 정렬 기준 필드
+     * @return 검증된 정렬 기준 필드
+     * @throws BadRequestException 허용되지 않은 정렬 기준이 전달된 경우
      */
     private String validateSortBy(String sortBy) {
         if (sortBy == null || sortBy.isBlank()) {

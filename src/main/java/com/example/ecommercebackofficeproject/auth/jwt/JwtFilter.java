@@ -21,7 +21,7 @@ public class JwtFilter implements HandlerInterceptor {
 
         String authorizationHeader = request.getHeader("Authorization");
 
-        if (authorizationHeader == null || !authorizationHeader.startsWith("Bearer ")) {
+        if (authorizationHeader == null) {
             throw new UnauthorizedException("로그인이 필요합니다.");
         }
 
