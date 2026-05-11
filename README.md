@@ -10,6 +10,10 @@ Spring 기반의 고객 및 상품 관리 시스템입니다.
 
 ### [GitHub Rules 문서 링크](docs/gitHubRules.md)
 
+## 발표 자료
+
+### [발표 자료 문서 링크](docs/260430_이커머스백오피스_4조_4ever.pdf)
+
 ## 비즈니스 로직 플로우 차트
 
 ```mermaid
